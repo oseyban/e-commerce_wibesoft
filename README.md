@@ -3,6 +3,7 @@ E-Commerce Next &amp; Expo Repository For WibeSoft
 Projede NextJs ve Expo kullanıldı. monorepo kullanılarak iki uygulamanın da birlikte çalışması ve ortak kodları kullanarak projede %40 daha az kod yazma sağlandı böylece zamandan ve maliyetlerden tasarruf edilmesi düşünüldü.
 
 Yüklenecek paketler:
+
 Root / geliştirme araçları (devDependencies)
 turbo (Turborepo) — build/run orchestration
 pnpm (workspace yönetimi)
