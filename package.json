@@ -1,0 +1,24 @@
+{
+  "name": "ecommerce-monorepo",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev:web": "pnpm --filter web dev",
+    "dev:mobile": "pnpm --filter mobile start",
+    "dev": "turbo run dev --parallel",
+    "build": "turbo run build",
+    "lint": "turbo run lint"
+  },
+  "devDependencies": {
+    "@7nohe/openapi-react-query-codegen": "^2.0.0",
+    "@openapitools/openapi-generator-cli": "^2.28.0",
+    "@redocly/cli": "^2.15.0",
+    "@redocly/openapi-cli": "1.0.0-beta.95",
+    "@types/node": "^20.19.30",
+    "turbo": "^2.8.0",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@hey-api/client-axios": "^0.9.1"
+  }
+}
