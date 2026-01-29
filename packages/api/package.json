@@ -2,7 +2,7 @@
   "name": "@monorepo/api",
   "version": "0.0.0",
   "scripts": {
-  "codegen": "openapi-ts -i openapi.json -o src/generated -c axios"
+  "codegen": "openapi-ts -i openapi.json -o src/generated/types.ts"
 },
   "devDependencies": {
     "@hey-api/client-axios": "^0.9.1",
