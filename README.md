@@ -40,4 +40,7 @@ packages/store (zustand store)
 packages/utils (formatter, currency helper vs)
 packages/design-tokens (renk / spacing token’ları)
 
+monorepo kullanımı sebebiyle pnpm workspace kullanıldı.
+
+
 
