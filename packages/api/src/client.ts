@@ -1,6 +1,6 @@
 
 import axios from "axios";
-import * as Types from "./generated/types.ts";
+import * as Types from "./generated";
 
 export const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL ?? "https://fakestoreapi.com",
