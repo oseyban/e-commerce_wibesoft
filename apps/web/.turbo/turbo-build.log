@@ -5,20 +5,29 @@
 ▲ Next.js 16.1.6 (Turbopack)
 
   Creating an optimized production build ...
-✓ Compiled successfully in 4.0s
+✓ Compiled successfully in 3.3s
   Running TypeScript ...
-  Collecting page data using 11 workers ...
-  Generating static pages using 11 workers (0/4) ...
-  Generating static pages using 11 workers (1/4) 
-  Generating static pages using 11 workers (2/4) 
-  Generating static pages using 11 workers (3/4) 
-✓ Generating static pages using 11 workers (4/4) in 542.2ms
-  Finalizing page optimization ...
+Failed to compile.
 
-Route (app)
-┌ ○ /
-└ ○ /_not-found
+./src/hooks/useProducts.ts:9:40
+Type error: Type 'Client' is not assignable to type 'Client | undefined'.
+  Type 'import("C:/Users/osman/OneDrive/Desktop/WibeSoft/e-commerce_wibesoft/node_modules/.pnpm/@hey-api+client-axios@0.9.1_64f71d035de08ea0350efe5eeeed6088/node_modules/@hey-api/client-axios/dist/index").Client' is not assignable to type 'import("C:/Users/osman/OneDrive/Desktop/WibeSoft/e-commerce_wibesoft/packages/api/dist/generated/client/types.gen").Client'.
+    Type 'Client' is not assignable to type '{ buildUrl: BuildUrlFn; getConfig: () => Config<ClientOptions>; request: RequestFn; setConfig: (config: Config<ClientOptions>) => Config<...>; }'.
+      Types of property 'buildUrl' are incompatible.
+        Type 'BuildUrlFn' is not assignable to type 'BuildUrlFn'. Two different types with this name exist, but they are unrelated.
+          Types of parameters 'options' and 'options' are incompatible.
+            Type 'TData & OmitKeys<RequestOptions<unknown, "fields", boolean, string>, "url" | "body" | "path" | "query"> & ([TData] extends [never] ? unknown : Omit<...>)' is not assignable to type 'Pick<{ body?: unknown; path?: Record<string, unknown> | undefined; query?: Record<string, unknown> | undefined; url: string; }, "url"> & Omit<Options<{ body?: unknown; path?: Record<string, unknown> | undefined; query?: Record<...> | undefined; url: string; }, boolean>, "axios">'.
+              Type 'TData & OmitKeys<RequestOptions<unknown, "fields", boolean, string>, "url" | "body" | "path" | "query"> & ([TData] extends [never] ? unknown : Omit<...>)' is not assignable to type 'Omit<Options<{ body?: unknown; path?: Record<string, unknown> | undefined; query?: Record<string, unknown> | undefined; url: string; }, boolean>, "axios">'.
+                Types of property 'headers' are incompatible.
+                  Type 'HeadersInit | Record<string, unknown> | undefined' is not assignable to type 'Record<string, unknown> | AxiosHeaders | Partial<HeadersDefaults> | Partial<RawAxiosHeaders & { Accept: AxiosHeaderValue; "Content-Length": AxiosHeaderValue; "User-Agent": AxiosHeaderValue; "Content-Encoding": AxiosHeaderValue; Authorization: AxiosHeaderValue; } & { ...; }> | undefined'.
+                    Type 'Headers' is not assignable to type 'Record<string, unknown> | AxiosHeaders | Partial<HeadersDefaults> | Partial<RawAxiosHeaders & { Accept: AxiosHeaderValue; "Content-Length": AxiosHeaderValue; "User-Agent": AxiosHeaderValue; "Content-Encoding": AxiosHeaderValue; Authorization: AxiosHeaderValue; } & { ...; }> | undefined'.
+                      Type 'Headers' is missing the following properties from type 'AxiosHeaders': clear, normalize, concat, toJSON, and 18 more.
 
-
-○  (Static)  prerendered as static content
-
+[0m [90m  7 |[39m   useQuery({
+ [90m  8 |[39m     queryKey[33m:[39m [[32m"products"[39m][33m,[39m
+[31m[1m>[22m[39m[90m  9 |[39m     queryFn[33m:[39m () [33m=>[39m [33mTypes[39m[33m.[39mgetProducts({ client[33m:[39m api })[33m,[39m
+ [90m    |[39m                                        [31m[1m^[22m[39m
+ [90m 10 |[39m   })[33m;[39m
+ [90m 11 |[39m[0m
+Next.js build worker exited with code: 1 and signal: null
+ ELIFECYCLE  Command failed with exit code 1.

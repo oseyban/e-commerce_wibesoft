@@ -1,2 +1,2 @@
-export * from "./client";
-export * as Types from "./generated";
+export * as sdk from "./generated";
+export { client } from "./client";

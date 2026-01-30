@@ -1,5 +1,7 @@
-import { client } from "@monorepo/api";
+import { client, configureClient } from "@monorepo/api";
 
-export const api = client({
-  baseUrl: process.env.NEXT_PUBLIC_API_URL!,
-});
+const baseUrl =
+  process.env.NEXT_PUBLIC_API_URL ?? "https://fakestoreapi.com";
+configureClient({ baseUrl, responseStyle: "data" });
+
+export const api = client;
