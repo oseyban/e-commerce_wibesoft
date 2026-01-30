@@ -58,6 +58,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@monorepo/api':
+        specifier: workspace:*
+        version: link:../../packages/api
       '@tanstack/react-query':
         specifier: ^5.90.20
         version: 5.90.20(react@19.2.3)
