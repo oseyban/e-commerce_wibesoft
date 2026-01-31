@@ -1,10 +1,12 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo } from "react";
+import Link from "next/link";
+import { useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { getProductById, type Product } from "@monorepo/api";
+import { getProductById, getProducts, type Product } from "@monorepo/api";
+import { useStore } from "@/lib/store";
 
 type Review = {
   id: string;
@@ -48,6 +50,15 @@ const reviews: Review[] = [
 const colorOptions = ["Black", "White", "Olive", "Navy"];
 const sizeOptions = ["Small", "Medium", "Large", "X-Large"];
 
+const normalizeProducts = async (): Promise<Product[]> => {
+  const res = await getProducts();
+  if (Array.isArray(res)) return res;
+  if (res && typeof res === "object" && "data" in res) {
+    return (res as { data?: Product[] }).data ?? [];
+  }
+  return [];
+};
+
 export default function ProductDetailPage() {
   const params = useParams<{ id: string }>();
   const productId = useMemo(() => Number(params?.id), [params?.id]);
@@ -57,6 +68,36 @@ export default function ProductDetailPage() {
     queryFn: () => getProductById(productId),
     enabled: Number.isFinite(productId)
   });
+
+  const { data: allProducts = [] } = useQuery<Product[]>({
+    queryKey: ["products", "related"],
+    queryFn: normalizeProducts
+  });
+
+  const [qty, setQty] = useState(1);
+  const [selectedColor, setSelectedColor] = useState(colorOptions[0]);
+  const [selectedSize, setSelectedSize] = useState(sizeOptions[2]);
+  const [justAdded, setJustAdded] = useState(false);
+
+  const relatedProducts = useMemo(() => {
+    if (!data) return [];
+    const byCategory = allProducts.filter(
+      (item) => item.category === data.category && item.id !== data.id
+    );
+    return (byCategory.length ? byCategory : allProducts)
+      .filter((item) => item.id !== data.id)
+      .slice(0, 4);
+  }, [allProducts, data]);
+
+  const thumbnails = useMemo(() => {
+    const src = data?.image ?? "";
+    if (!src) return [];
+    return [src, src, src];
+  }, [data?.image]);
+
+  const { add } = useStore((state) => ({
+    add: state.add
+  }));
 
   if (isLoading) {
     return (
@@ -83,14 +124,26 @@ export default function ProductDetailPage() {
 
         <section className="grid gap-10 lg:grid-cols-[120px_1fr_1fr]">
           <div className="flex flex-col gap-3">
-            {[1, 2, 3].map((slot) => (
-              <div
-                key={slot}
-                className="flex h-24 w-full items-center justify-center rounded-xl border bg-zinc-50 text-xs text-zinc-400"
-              >
-                Thumb
+            {thumbnails.length ? (
+              thumbnails.map((src, index) => (
+                <div
+                  key={`${src}-${index}`}
+                  className="relative flex h-24 w-full items-center justify-center rounded-xl border bg-zinc-50"
+                >
+                  <Image
+                    src={src}
+                    alt={`${data.title} thumbnail ${index + 1}`}
+                    fill
+                    unoptimized
+                    className="object-contain p-3"
+                  />
+                </div>
+              ))
+            ) : (
+              <div className="flex h-24 w-full items-center justify-center rounded-xl border bg-zinc-50 text-xs text-zinc-400">
+                No image
               </div>
-            ))}
+            )}
           </div>
 
           <div className="flex items-center justify-center rounded-3xl bg-zinc-100 p-8">
@@ -121,7 +174,11 @@ export default function ProductDetailPage() {
                   {colorOptions.map((color) => (
                     <button
                       key={color}
-                      className="rounded-full border px-4 py-2 text-xs"
+                      type="button"
+                      onClick={() => setSelectedColor(color)}
+                      className={`rounded-full border px-4 py-2 text-xs transition active:scale-95 ${
+                        selectedColor === color ? "bg-black text-white" : ""
+                      }`}
                     >
                       {color}
                     </button>
@@ -134,7 +191,11 @@ export default function ProductDetailPage() {
                   {sizeOptions.map((size) => (
                     <button
                       key={size}
-                      className="rounded-full border px-4 py-2 text-xs"
+                      type="button"
+                      onClick={() => setSelectedSize(size)}
+                      className={`rounded-full border px-4 py-2 text-xs transition active:scale-95 ${
+                        selectedSize === size ? "bg-black text-white" : ""
+                      }`}
                     >
                       {size}
                     </button>
@@ -143,12 +204,41 @@ export default function ProductDetailPage() {
               </div>
               <div className="flex items-center gap-3">
                 <div className="flex items-center rounded-full border px-3 py-2 text-sm">
-                  <button className="px-2">-</button>
-                  <span className="px-2">1</span>
-                  <button className="px-2">+</button>
+                  <button
+                    className="px-2"
+                    type="button"
+                    onClick={() => setQty((prev) => Math.max(1, prev - 1))}
+                  >
+                    -
+                  </button>
+                  <span className="px-2">{qty}</span>
+                  <button
+                    className="px-2"
+                    type="button"
+                    onClick={() => setQty((prev) => prev + 1)}
+                  >
+                    +
+                  </button>
                 </div>
-                <button className="flex-1 rounded-full bg-black px-5 py-3 text-sm font-semibold text-white">
-                  Add to Cart
+                <button
+                  type="button"
+                  className={`flex-1 rounded-full px-5 py-3 text-sm font-semibold text-white transition active:scale-95 ${
+                    justAdded ? "bg-emerald-600" : "bg-black"
+                  }`}
+                  onClick={() => {
+                    if (!data.id) return;
+                    add({
+                      id: data.id,
+                      title: data.title,
+                      price: data.price,
+                      image: data.image,
+                      qty
+                    });
+                    setJustAdded(true);
+                    window.setTimeout(() => setJustAdded(false), 900);
+                  }}
+                >
+                  {justAdded ? "Added" : "Add to Cart"}
                 </button>
               </div>
             </div>
@@ -192,18 +282,32 @@ export default function ProductDetailPage() {
         <section className="mt-12">
           <h2 className="mb-6 text-2xl font-bold">You Might Also Like</h2>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {Array.from({ length: 4 }).map((_, index) => (
-              <div
-                key={`related-${index}`}
+            {relatedProducts.map((item, index) => (
+              <Link
+                key={item.id ?? `${item.title}-${index}`}
+                href={item.id ? `/product/${item.id}` : "#"}
                 className="rounded-2xl border border-zinc-200 bg-white p-4"
               >
-                <div className="mb-4 flex h-40 items-center justify-center rounded-xl bg-zinc-50 text-xs text-zinc-400">
-                  Product
+                <div className="relative mb-4 h-40 w-full overflow-hidden rounded-xl bg-zinc-50">
+                  <Image
+                    src={item.image ?? ""}
+                    alt={item.title}
+                    fill
+                    unoptimized
+                    className="object-contain"
+                  />
                 </div>
-                <div className="text-sm font-semibold">Related Product</div>
-                <div className="text-sm font-bold">$120</div>
-              </div>
+                <div className="line-clamp-2 text-sm font-semibold">
+                  {item.title}
+                </div>
+                <div className="text-sm font-bold">${item.price}</div>
+              </Link>
             ))}
+            {!relatedProducts.length && (
+              <div className="text-sm text-zinc-500">
+                No related products found.
+              </div>
+            )}
           </div>
         </section>
       </div>
