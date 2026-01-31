@@ -14,7 +14,7 @@
     }
   },
   "scripts": {
-    "codegen": "openapi-ts -i openapi.json -o src/generated",
+    "codegen": "openapi-rq -i openapi.json -o src/generated -c axios",
     "prebuild": "pnpm run codegen",
     "typecheck": "tsc --noEmit",
     "build": "tsc -p tsconfig.json",
