@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getProducts, type Product } from "@monorepo/api";
@@ -134,6 +135,10 @@ export default function HomePage() {
               key={product.id ?? `${product.title}-${index}`}
               className="rounded-2xl border border-zinc-200 bg-white p-4"
             >
+              <Link
+                href={product.id ? `/product/${product.id}` : "#"}
+                className={product.id ? "block" : "pointer-events-none block"}
+              >
               <div className="relative mb-4 h-40 w-full overflow-hidden rounded-xl bg-zinc-50">
                 <Image
                   src={product.image ?? ""}
@@ -143,10 +148,11 @@ export default function HomePage() {
                   className="object-contain"
                 />
               </div>
-              <h3 className="line-clamp-2 text-sm font-semibold">
-                {product.title}
-              </h3>
-              <p className="mt-2 text-sm font-bold">${product.price}</p>
+                <h3 className="line-clamp-2 text-sm font-semibold">
+                  {product.title}
+                </h3>
+                <p className="mt-2 text-sm font-bold">${product.price}</p>
+              </Link>
             </article>
           ))}
         </div>
@@ -165,6 +171,10 @@ export default function HomePage() {
               key={product.id ?? `${product.title}-${index}`}
               className="rounded-2xl border border-zinc-200 bg-white p-4"
             >
+              <Link
+                href={product.id ? `/product/${product.id}` : "#"}
+                className={product.id ? "block" : "pointer-events-none block"}
+              >
               <div className="relative mb-4 h-40 w-full overflow-hidden rounded-xl bg-zinc-50">
                 <Image
                   src={product.image ?? ""}
@@ -174,10 +184,11 @@ export default function HomePage() {
                   className="object-contain"
                 />
               </div>
-              <h3 className="line-clamp-2 text-sm font-semibold">
-                {product.title}
-              </h3>
-              <p className="mt-2 text-sm font-bold">${product.price}</p>
+                <h3 className="line-clamp-2 text-sm font-semibold">
+                  {product.title}
+                </h3>
+                <p className="mt-2 text-sm font-bold">${product.price}</p>
+              </Link>
             </article>
           ))}
         </div>
