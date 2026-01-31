@@ -1,0 +1,5 @@
+﻿#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+echo "Running pre-commit checks (placeholder) ..."
+# you can place `pnpm -w lint-staged` or tests here
+exit 0

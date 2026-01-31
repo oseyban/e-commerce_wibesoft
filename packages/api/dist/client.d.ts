@@ -1,14 +1,4 @@
-import type * as Types from "./generated";
-export declare const api: import("axios").AxiosInstance;
-export declare function getProducts(): Promise<Types.GetProductsResponse>;
-export declare function getProductById(id: number): Promise<Types.GetProductByIdResponse>;
-export declare function createProduct(payload: Types.Product): Promise<Types.CreateProductResponse>;
-export declare function updateProductById(id: number, payload: Types.Product): Promise<Types.UpdateProductByIdResponse>;
-export declare function deleteProductById(id: number): Promise<void>;
-export declare function getCategories(): Promise<Types.GetCategoriesResponse>;
-export declare function getProductsByCategory(category: string): Promise<Types.GetProductsByCategoryResponse>;
-export declare function getCarts(): Promise<Types.GetCartsResponse>;
-export declare function getCartById(id: number): Promise<Types.GetCartByIdResponse>;
-export declare function createCart(payload: Types.Cart): Promise<Types.CreateCartResponse>;
-export declare function getUsers(): Promise<Types.GetUsersResponse>;
-export declare function login(username: string, password: string): Promise<Types.LoginResponse>;
+import type { Config } from "./generated/client";
+export declare const client: import("./generated/client").Client;
+export declare const configureClient: (config: Config) => void;
+export declare const setApiBaseUrl: (baseUrl: string) => void;

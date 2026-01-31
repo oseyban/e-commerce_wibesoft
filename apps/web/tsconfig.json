@@ -20,7 +20,13 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@monorepo/api": ["../../packages/api/src/index.ts"],
+      "@monorepo/api/*": ["../../packages/api/src/*"],
+      "@monorepo/types": ["../../packages/types/src/index.ts"],
+      "@monorepo/types/*": ["../../packages/types/src/*"],
+      "@monorepo/store": ["../../packages/store/src/index.ts"],
+      "@monorepo/store/*": ["../../packages/store/src/*"]
     }
   },
   "include": [
