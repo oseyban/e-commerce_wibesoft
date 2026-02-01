@@ -8,6 +8,7 @@ import { getProducts, type Product } from "@monorepo/api";
 import testimonials from "../data/testimonials.json";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import { themeColors } from "../data/theme-colors";
 
 const ASSETS = {
   logo: "/images/logo.png",
@@ -38,7 +39,7 @@ function Star({ small = false }: { small?: boolean }) {
   const size = small ? 12 : 18;
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path d="M12 2.5l2.6 5.3 5.8.8-4.2 4 1 5.7L12 17.8 6.8 18.5l1-5.7L3.6 8.8l5.8-.8L12 2.5z" fill="#FFC633" />
+      <path d="M12 2.5l2.6 5.3 5.8.8-4.2 4 1 5.7L12 17.8 6.8 18.5l1-5.7L3.6 8.8l5.8-.8L12 2.5z" fill={themeColors.accent.warning} />
     </svg>
   );
 }
@@ -92,7 +93,7 @@ export default function HomePage() {
       <Header />
 
       {/* HERO */}
-      <section className="relative w-full bg-[#F2F0F1]">
+      <section className="relative w-full" style={{ background: themeColors.neutral.gray300 }}>
         {/* Decoratif stars*/}
         <Image
           src={ASSETS.star}

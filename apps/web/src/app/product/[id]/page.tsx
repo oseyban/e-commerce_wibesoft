@@ -11,6 +11,7 @@ import { colors, spacing, radii, fontSizes, fontWeights, shadows } from "../../.
 import Header from "../../../components/Header";
 import Footer from "../../../components/Footer";
 import reviews from "../../../data/reviews.json";
+import { themeColors } from "../../../data/theme-colors";
 
 type Review = {
   id: string;
@@ -245,7 +246,7 @@ export default function ProductDetailPage() {
             className="order-1 flex min-h-[260px] items-center justify-center sm:min-h-[280px] lg:order-none lg:w-[444px] lg:h-[530px] lg:ml-4"
             style={{
               borderRadius: "20px",
-              background: "#F0EEED",
+              background: themeColors.neutral.gray200,
               padding: spacing[6],
               boxShadow: shadows.sm,
             }}
@@ -307,7 +308,7 @@ export default function ProductDetailPage() {
                   </div>
                   <span
                     className="rounded-full px-3 py-1 text-xs font-semibold"
-                    style={{ background: "#FF33331A", color: "#FF3333" }}
+                    style={{ background: themeColors.accent.dangerSoft, color: themeColors.accent.danger }}
                   >
                     -{discountPercent}%
                   </span>
@@ -657,7 +658,7 @@ export default function ProductDetailPage() {
                   {relatedDiscount > 0 && (
                     <>
                       <div className="text-sm text-zinc-400 line-through">{formatPrice(currentPrice)}</div>
-                      <span className="rounded-full px-2 py-0.5 text-xs font-semibold" style={{ background: "#FF33331A", color: "#FF3333" }}>
+                      <span className="rounded-full px-2 py-0.5 text-xs font-semibold" style={{ background: themeColors.accent.dangerSoft, color: themeColors.accent.danger }}>
                         -{relatedDiscount}%
                       </span>
                     </>
