@@ -30,7 +30,12 @@ export default function Header() {
             </Link>
 
             <nav className="hidden lg:flex items-center gap-5 text-[16px] leading-[22px] whitespace-nowrap">
-              <Link className="text-sm" href="/shop">Shop</Link>
+              <Link className="text-sm inline-flex items-center gap-1" href="/shop">
+                Shop
+                <span className="text-[10px]" aria-hidden>
+                  ▾
+                </span>
+              </Link>
               <Link className="text-sm" href="/onsale">On Sale</Link>
               <Link className="text-sm" href="/new-arrivals">New Arrivals</Link>
               <Link className="text-sm" href="/brands">Brands</Link>
@@ -59,7 +64,9 @@ export default function Header() {
                 <path d="M21 21l-4.35-4.35m1.6-4.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
               </svg>
             </button>
-            <Image src={ASSETS.cart} alt="cart" width={24} height={24} unoptimized />
+            <Link href="/cart" aria-label="Cart">
+              <Image src={ASSETS.cart} alt="cart" width={24} height={24} unoptimized />
+            </Link>
             <Image src={ASSETS.profile} alt="profile" width={24} height={24} unoptimized />
           </div>
         </div>

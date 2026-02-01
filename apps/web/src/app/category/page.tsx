@@ -2,9 +2,12 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type PointerEvent } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getProducts, type Product } from "@monorepo/api";
+import Header from "../../components/Header";
+import Footer from "../../components/Footer";
+import { themeColors } from "../../data/theme-colors";
 
 const categories = ["T-shirts", "Shorts", "Shirts", "Hoodie", "Jeans"];
 const sizes = [
@@ -20,16 +23,16 @@ const sizes = [
 ];
 
 const colors = [
-  { name: "Green", className: "bg-green-500" },
-  { name: "Red", className: "bg-red-500" },
-  { name: "Yellow", className: "bg-yellow-400" },
-  { name: "Orange", className: "bg-orange-400" },
-  { name: "Sky", className: "bg-sky-400" },
-  { name: "Blue", className: "bg-blue-600" },
-  { name: "Purple", className: "bg-purple-500" },
-  { name: "Pink", className: "bg-pink-500" },
-  { name: "White", className: "bg-white" },
-  { name: "Black", className: "bg-black" }
+  { name: "Green", value: "#00C12B" },
+  { name: "Blue", value: "#063AF5" },
+  { name: "Cyan", value: "#06CAF5" },
+  { name: "Purple", value: "#7D06F5" },
+  { name: "Red", value: "#F50606" },
+  { name: "Pink", value: "#F506A4" },
+  { name: "Orange", value: "#F57906" },
+  { name: "Yellow", value: "#F5DD06" },
+  { name: "White", value: "#FFFFFF" },
+  { name: "Black", value: "#000000" }
 ];
 
 const categoryMap: Record<string, string[]> = {
@@ -38,6 +41,14 @@ const categoryMap: Record<string, string[]> = {
   Shirts: ["men's clothing"],
   Hoodie: ["men's clothing"],
   Jeans: ["men's clothing"]
+};
+
+const dressStyles = ["Casual", "Formal", "Party", "Gym"];
+const dressStyleMap: Record<string, string[]> = {
+  Casual: ["men's clothing", "women's clothing"],
+  Formal: ["men's clothing"],
+  Party: ["men's clothing"],
+  Gym: ["men's clothing"]
 };
 
 const getProductMeta = (product: Product) => {
@@ -66,12 +77,44 @@ const normalizeProducts = async (): Promise<Product[]> => {
   return [];
 };
 
+function Star({ small = false }: { small?: boolean }) {
+  const size = small ? 9 : 18;
+  const height = small ? 17 : 18;
+  return (
+    <svg width={size} height={height} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M12 2.5l2.6 5.3 5.8.8-4.2 4 1 5.7L12 17.8 6.8 18.5l1-5.7L3.6 8.8l5.8-.8L12 2.5z"
+        fill={themeColors.accent.warning}
+      />
+    </svg>
+  );
+}
+
+function RatingRow() {
+  return (
+    <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1">
+        <Star />
+        <Star />
+        <Star />
+        <Star />
+        <Star small />
+      </div>
+      <span className="text-[14px] leading-[19px] text-black">4.5/5</span>
+    </div>
+  );
+}
+
 export default function CategoryPage() {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
+  const [selectedDressStyles, setSelectedDressStyles] = useState<string[]>([]);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 0]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [sortBy, setSortBy] = useState("popular");
+  const [activePriceThumb, setActivePriceThumb] = useState<"min" | "max">("min");
   const { data = [], isLoading, isError } = useQuery<Product[]>({
     queryKey: ["products", "category"],
     queryFn: normalizeProducts
@@ -122,13 +165,43 @@ export default function CategoryPage() {
       });
     }
 
-    return list;
-  }, [data, priceRange, selectedCategories, selectedSizes, selectedColors]);
+    if (selectedDressStyles.length) {
+      const allowedCategories = new Set(
+        selectedDressStyles.flatMap((style) => dressStyleMap[style] ?? [])
+      );
+      list = list.filter((item) =>
+        allowedCategories.has(String(item.category ?? ""))
+      );
+    }
 
-  const products = useMemo(
-    () => filteredProducts.slice(0, 9),
-    [filteredProducts]
-  );
+    return list;
+  }, [
+    data,
+    priceRange,
+    selectedCategories,
+    selectedSizes,
+    selectedColors,
+    selectedDressStyles
+  ]);
+
+  const sortedProducts = useMemo(() => {
+    const list = [...filteredProducts];
+    if (sortBy === "price-asc") {
+      list.sort((a, b) => (a.price ?? 0) - (b.price ?? 0));
+    } else if (sortBy === "price-desc") {
+      list.sort((a, b) => (b.price ?? 0) - (a.price ?? 0));
+    } else if (sortBy === "new") {
+      list.sort((a, b) => (Number(b.id) || 0) - (Number(a.id) || 0));
+    }
+    return list;
+  }, [filteredProducts, sortBy]);
+
+  const pageSize = 12;
+  const totalPages = Math.max(1, Math.ceil(sortedProducts.length / pageSize));
+  const products = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return sortedProducts.slice(start, start + pageSize);
+  }, [sortedProducts, currentPage]);
 
   const toggleSelection = (
     value: string,
@@ -146,51 +219,66 @@ export default function CategoryPage() {
     setSelectedCategories([]);
     setSelectedSizes([]);
     setSelectedColors([]);
+    setSelectedDressStyles([]);
     setPriceRange([priceBounds.min, priceBounds.max]);
   };
 
-  return (
-    <main className="bg-white text-zinc-900">
-      <header className="border-b border-zinc-200">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <div className="text-lg font-extrabold tracking-tight">SHOP.CO</div>
-          <div className="hidden items-center gap-6 text-sm text-zinc-600 md:flex">
-            <span>Shop</span>
-            <span>On Sale</span>
-            <span>New Arrivals</span>
-            <span>Brands</span>
-          </div>
-          <div className="flex items-center gap-3 text-zinc-600">
-            <span>🔍</span>
-            <span>🛒</span>
-            <span>👤</span>
-          </div>
-        </div>
-      </header>
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
 
-      <div className="mx-auto max-w-6xl px-6 py-10">
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedCategories, selectedSizes, selectedColors, selectedDressStyles, priceRange]);
+
+  const surface = {
+    base: themeColors.neutral.white,
+    muted: themeColors.neutral.gray100,
+    border: themeColors.neutral.overlay10,
+    text: themeColors.neutral.black,
+  };
+
+  const getPercent = (value: number) => {
+    const range = priceBounds.max - priceBounds.min || 1;
+    return ((value - priceBounds.min) / range) * 100;
+  };
+
+  const formatPrice = (value: number) => `$${Math.round(value)}`;
+  const getDiscount = (seed: number) => {
+    if (seed % 5 === 0) return 30;
+    if (seed % 3 === 0) return 20;
+    return 0;
+  };
+
+  const handlePricePointerDown = (
+    event: PointerEvent<HTMLDivElement>
+  ) => {
+    const range = priceBounds.max - priceBounds.min;
+    if (!range) return;
+    const rect = event.currentTarget.getBoundingClientRect();
+    const percent = Math.min(
+      Math.max((event.clientX - rect.left) / rect.width, 0),
+      1
+    );
+    const value = priceBounds.min + percent * range;
+    const midpoint = (priceRange[0] + priceRange[1]) / 2;
+    setActivePriceThumb(value <= midpoint ? "min" : "max");
+  };
+
+  return (
+    <main className="text-zinc-900" style={{ background: surface.base }}>
+      <Header />
+
+      <div className="mx-auto max-w-[1200px] px-4 py-10 sm:px-5">
         <div className="mb-4 text-xs text-zinc-500">Home / Casual</div>
 
-          <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-          <h1 className="text-2xl font-bold">Casual</h1>
-          <div className="flex items-center gap-4 text-xs text-zinc-500">
-            <span>
-              Showing {products.length} of {filteredProducts.length} Products
-            </span>
-            <span>
-              Sort by: <strong className="text-zinc-900">Most Popular</strong>
-            </span>
-            <button
-              className="rounded-full border px-4 py-2 md:hidden"
-              onClick={() => setFiltersOpen((v) => !v)}
-            >
-              Filters
-            </button>
-          </div>
-        </div>
-
         <div className="grid gap-8 lg:grid-cols-[260px_1fr]">
-          <aside className="hidden h-fit rounded-2xl border border-zinc-200 p-4 lg:block">
+          <aside
+            className="hidden h-fit rounded-2xl p-4 lg:block"
+            style={{ background: surface.base, border: `1px solid ${surface.border}` }}
+          >
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-sm font-semibold">Filters</h2>
               <button
@@ -201,7 +289,10 @@ export default function CategoryPage() {
                 Reset
               </button>
             </div>
-            <div className="space-y-3 border-b pb-4 text-sm text-zinc-600">
+            <div
+              className="space-y-3 border-b pb-4 text-sm text-zinc-600"
+              style={{ borderColor: surface.border }}
+            >
               {categories.map((item) => (
                 <button
                   key={item}
@@ -226,7 +317,19 @@ export default function CategoryPage() {
                 <span>▾</span>
               </div>
               <div className="mt-4">
-                <div className="flex items-center gap-2">
+                <div className="relative h-6" onPointerDown={handlePricePointerDown}>
+                  <div
+                    className="absolute left-0 right-0 top-1/2 h-1.5 -translate-y-1/2 rounded-full"
+                    style={{ background: "#F0F0F0" }}
+                  />
+                  <div
+                    className="absolute top-1/2 h-1.5 -translate-y-1/2 rounded-full"
+                    style={{
+                      left: `${getPercent(priceRange[0])}%`,
+                      right: `${100 - getPercent(priceRange[1])}%`,
+                      background: surface.text,
+                    }}
+                  />
                   <input
                     type="range"
                     min={priceBounds.min}
@@ -238,7 +341,12 @@ export default function CategoryPage() {
                         priceRange[1]
                       ])
                     }
-                    className="w-full"
+                    className="absolute inset-0 h-6 w-full cursor-pointer appearance-none bg-transparent"
+                    onPointerDown={() => setActivePriceThumb("min")}
+                    style={{
+                      accentColor: surface.text,
+                      zIndex: activePriceThumb === "min" ? 4 : 3
+                    }}
                   />
                   <input
                     type="range"
@@ -251,7 +359,12 @@ export default function CategoryPage() {
                         Math.max(Number(event.target.value), priceRange[0])
                       ])
                     }
-                    className="w-full"
+                    className="absolute inset-0 h-6 w-full cursor-pointer appearance-none bg-transparent"
+                    onPointerDown={() => setActivePriceThumb("max")}
+                    style={{
+                      accentColor: surface.text,
+                      zIndex: activePriceThumb === "max" ? 4 : 3
+                    }}
                   />
                 </div>
                 <div className="mt-2 flex items-center justify-between text-xs text-zinc-600">
@@ -260,12 +373,12 @@ export default function CategoryPage() {
                 </div>
               </div>
             </div>
-            <div className="border-t py-4">
+            <div className="border-t py-4" style={{ borderColor: surface.border }}>
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold">Colors</h3>
                 <span>▾</span>
               </div>
-              <div className="mt-3 flex flex-wrap gap-2">
+              <div className="mt-3 grid grid-cols-5 gap-2">
                 {colors.map((color) => (
                   <button
                     key={color.name}
@@ -273,22 +386,35 @@ export default function CategoryPage() {
                     onClick={() =>
                       toggleSelection(color.name, selectedColors, setSelectedColors)
                     }
-                    className={`h-7 w-7 rounded-full border ${color.className} ${
+                    className={`h-7 w-7 rounded-full border ${
                       selectedColors.includes(color.name)
                         ? "ring-2 ring-black ring-offset-2"
                         : ""
                     }`}
+                    style={{ backgroundColor: color.value }}
                     title={color.name}
-                  />
+                    aria-pressed={selectedColors.includes(color.name)}
+                  >
+                    {selectedColors.includes(color.name) && (
+                      <span
+                        className="flex h-full w-full items-center justify-center text-[10px] font-semibold"
+                        style={{
+                          color: color.value === "#FFFFFF" ? "#000000" : "#FFFFFF",
+                        }}
+                      >
+                        ✓
+                      </span>
+                    )}
+                  </button>
                 ))}
               </div>
             </div>
-            <div className="border-t py-4">
+            <div className="border-t py-4" style={{ borderColor: surface.border }}>
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold">Size</h3>
                 <span>▾</span>
               </div>
-              <div className="mt-3 flex flex-wrap gap-2 text-xs">
+              <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
                 {sizes.map((size) => (
                   <button
                     key={size}
@@ -296,7 +422,7 @@ export default function CategoryPage() {
                     onClick={() =>
                       toggleSelection(size, selectedSizes, setSelectedSizes)
                     }
-                    className={`rounded-full border px-3 py-2 ${
+                    className={`w-full rounded-full border px-3 py-2 ${
                       selectedSizes.includes(size)
                         ? "bg-black text-white"
                         : "text-zinc-600"
@@ -307,31 +433,101 @@ export default function CategoryPage() {
                 ))}
               </div>
             </div>
-            <div className="border-t py-4">
+            <div className="border-t py-4" style={{ borderColor: surface.border }}>
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold">Dress Style</h3>
                 <span>▾</span>
               </div>
               <div className="mt-3 space-y-2 text-sm text-zinc-600">
-                {["Casual", "Formal", "Party", "Gym"].map((style) => (
-                  <div key={style} className="flex items-center justify-between">
+                {dressStyles.map((style) => (
+                  <button
+                    key={style}
+                    type="button"
+                    onClick={() =>
+                      toggleSelection(
+                        style,
+                        selectedDressStyles,
+                        setSelectedDressStyles
+                      )
+                    }
+                    className={`flex w-full items-center justify-between ${
+                      selectedDressStyles.includes(style)
+                        ? "font-semibold text-zinc-900"
+                        : ""
+                    }`}
+                  >
                     <span>{style}</span>
                     <span>›</span>
-                  </div>
+                  </button>
                 ))}
               </div>
             </div>
             <button
-              className="mt-4 w-full rounded-full bg-black py-3 text-sm font-semibold text-white"
+              className="mt-4 w-full rounded-full py-3 text-sm font-semibold"
+              style={{ background: surface.text, color: surface.base }}
               type="button"
             >
               Apply Filter
             </button>
           </aside>
 
-          <div className="space-y-8">
+          <div className="flex min-h-[760px] flex-col gap-8">
+            <div className="flex flex-wrap items-end justify-between gap-4">
+              <h1
+                className="text-[32px] font-bold leading-[43px] text-black"
+                style={{ fontFamily: "var(--font-satoshi), sans-serif" }}
+              >
+                Casual
+              </h1>
+              <div className="flex flex-wrap items-center gap-4 text-xs text-zinc-500">
+                <span>
+                  Showing{" "}
+                  {sortedProducts.length
+                    ? `${(currentPage - 1) * pageSize + 1}-${Math.min(
+                        currentPage * pageSize,
+                        sortedProducts.length
+                      )}`
+                    : "0"}{" "}
+                  of {sortedProducts.length} Products
+                </span>
+                <label
+                  className="flex items-center gap-2 text-[16px] font-normal leading-[22px] text-black/60"
+                  style={{ fontFamily: "var(--font-satoshi), sans-serif" }}
+                >
+                  Sort by:
+                  <span className="inline-flex items-center gap-0">
+                    <select
+                      value={sortBy}
+                      onChange={(event) => setSortBy(event.target.value)}
+                      className="appearance-none bg-transparent font-medium text-black"
+                    >
+                      <option value="popular">Most Popular</option>
+                      <option value="new">Newest</option>
+                      <option value="price-asc">Price: Low to High</option>
+                      <option value="price-desc">Price: High to Low</option>
+                    </select>
+                    <span className="inline-flex h-4 w-4 -ml-8 shrink-0 items-center justify-center text-black" aria-hidden>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                        <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </span>
+                    
+                  </span>
+                </label>
+                <button
+                  className="rounded-full border px-4 py-2 md:hidden"
+                  style={{ borderColor: surface.border, background: surface.base }}
+                  onClick={() => setFiltersOpen((v) => !v)}
+                >
+                  Filters
+                </button>
+              </div>
+            </div>
             {filtersOpen && (
-              <div className="rounded-2xl border border-zinc-200 p-4 lg:hidden">
+              <div
+                className="rounded-2xl p-4 lg:hidden"
+                style={{ background: surface.base, border: `1px solid ${surface.border}` }}
+              >
                 <div className="mb-4 flex items-center justify-between">
                   <h2 className="text-sm font-semibold">Filters</h2>
                   <button
@@ -341,7 +537,10 @@ export default function CategoryPage() {
                     ✕
                   </button>
                 </div>
-                <div className="space-y-3 border-b pb-4 text-sm text-zinc-600">
+                <div
+                  className="space-y-3 border-b pb-4 text-sm text-zinc-600"
+                  style={{ borderColor: surface.border }}
+                >
                   {categories.map((item) => (
                     <button
                       key={item}
@@ -366,7 +565,19 @@ export default function CategoryPage() {
                     <span>▾</span>
                   </div>
                   <div className="mt-4">
-                    <div className="flex items-center gap-2">
+                    <div className="relative h-6" onPointerDown={handlePricePointerDown}>
+                      <div
+                        className="absolute left-0 right-0 top-1/2 h-1.5 -translate-y-1/2 rounded-full"
+                        style={{ background: "#F0F0F0" }}
+                      />
+                      <div
+                        className="absolute top-1/2 h-1.5 -translate-y-1/2 rounded-full"
+                        style={{
+                          left: `${getPercent(priceRange[0])}%`,
+                          right: `${100 - getPercent(priceRange[1])}%`,
+                          background: surface.text,
+                        }}
+                      />
                       <input
                         type="range"
                         min={priceBounds.min}
@@ -378,7 +589,12 @@ export default function CategoryPage() {
                             priceRange[1]
                           ])
                         }
-                        className="w-full"
+                        className="absolute inset-0 h-6 w-full cursor-pointer appearance-none bg-transparent"
+                        onPointerDown={() => setActivePriceThumb("min")}
+                        style={{
+                          accentColor: surface.text,
+                          zIndex: activePriceThumb === "min" ? 4 : 3
+                        }}
                       />
                       <input
                         type="range"
@@ -391,7 +607,12 @@ export default function CategoryPage() {
                             Math.max(Number(event.target.value), priceRange[0])
                           ])
                         }
-                        className="w-full"
+                        className="absolute inset-0 h-6 w-full cursor-pointer appearance-none bg-transparent"
+                        onPointerDown={() => setActivePriceThumb("max")}
+                        style={{
+                          accentColor: surface.text,
+                          zIndex: activePriceThumb === "max" ? 4 : 3
+                        }}
                       />
                     </div>
                     <div className="mt-2 flex items-center justify-between text-xs text-zinc-600">
@@ -400,12 +621,12 @@ export default function CategoryPage() {
                     </div>
                   </div>
                 </div>
-                <div className="border-t py-4">
+                <div className="border-t py-4" style={{ borderColor: surface.border }}>
                   <div className="flex items-center justify-between">
                     <h3 className="text-sm font-semibold">Colors</h3>
                     <span>▾</span>
                   </div>
-                  <div className="mt-3 flex flex-wrap gap-2">
+                  <div className="mt-3 grid grid-cols-5 gap-2">
                     {colors.map((color) => (
                       <button
                         key={color.name}
@@ -417,22 +638,36 @@ export default function CategoryPage() {
                             setSelectedColors
                           )
                         }
-                        className={`h-7 w-7 rounded-full border ${color.className} ${
+                        className={`h-7 w-7 rounded-full border ${
                           selectedColors.includes(color.name)
                             ? "ring-2 ring-black ring-offset-2"
                             : ""
                         }`}
+                        style={{ backgroundColor: color.value }}
                         title={color.name}
-                      />
+                        aria-pressed={selectedColors.includes(color.name)}
+                      >
+                        {selectedColors.includes(color.name) && (
+                          <span
+                            className="flex h-full w-full items-center justify-center text-[10px] font-semibold"
+                            style={{
+                              color:
+                                color.value === "#FFFFFF" ? "#000000" : "#FFFFFF",
+                            }}
+                          >
+                            ✓
+                          </span>
+                        )}
+                      </button>
                     ))}
                   </div>
                 </div>
-                <div className="border-t py-4">
+                <div className="border-t py-4" style={{ borderColor: surface.border }}>
                   <div className="flex items-center justify-between">
                     <h3 className="text-sm font-semibold">Size</h3>
                     <span>▾</span>
                   </div>
-                  <div className="mt-3 flex flex-wrap gap-2 text-xs">
+                  <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
                     {sizes.map((size) => (
                       <button
                         key={size}
@@ -440,7 +675,7 @@ export default function CategoryPage() {
                         onClick={() =>
                           toggleSelection(size, selectedSizes, setSelectedSizes)
                         }
-                        className={`rounded-full border px-3 py-2 ${
+                        className={`w-full rounded-full border px-3 py-2 ${
                           selectedSizes.includes(size)
                             ? "bg-black text-white"
                             : "text-zinc-600"
@@ -451,22 +686,38 @@ export default function CategoryPage() {
                     ))}
                   </div>
                 </div>
-                <div className="border-t py-4">
+                <div className="border-t py-4" style={{ borderColor: surface.border }}>
                   <div className="flex items-center justify-between">
                     <h3 className="text-sm font-semibold">Dress Style</h3>
                     <span>▾</span>
                   </div>
                   <div className="mt-3 space-y-2 text-sm text-zinc-600">
-                    {["Casual", "Formal", "Party", "Gym"].map((style) => (
-                      <div key={style} className="flex items-center justify-between">
+                    {dressStyles.map((style) => (
+                      <button
+                        key={style}
+                        type="button"
+                        onClick={() =>
+                          toggleSelection(
+                            style,
+                            selectedDressStyles,
+                            setSelectedDressStyles
+                          )
+                        }
+                        className={`flex w-full items-center justify-between ${
+                          selectedDressStyles.includes(style)
+                            ? "font-semibold text-zinc-900"
+                            : ""
+                        }`}
+                      >
                         <span>{style}</span>
                         <span>›</span>
-                      </div>
+                      </button>
                     ))}
                   </div>
                 </div>
                 <button
-                  className="mt-4 w-full rounded-full bg-black py-3 text-sm font-semibold text-white"
+                  className="mt-4 w-full rounded-full py-3 text-sm font-semibold"
+                  style={{ background: surface.text, color: surface.base }}
                   type="button"
                   onClick={() => setFiltersOpen(false)}
                 >
@@ -486,13 +737,13 @@ export default function CategoryPage() {
                 {products.map((product, index) => (
                   <article
                     key={product.id ?? `${product.title}-${index}`}
-                    className="rounded-2xl border border-zinc-200 bg-white p-4"
+                    className="overflow-hidden rounded-2xl border border-zinc-200 bg-white"
                   >
                     <Link
                       href={product.id ? `/product/${product.id}` : "#"}
                       className={product.id ? "block" : "pointer-events-none block"}
                     >
-                      <div className="relative mb-4 h-40 w-full overflow-hidden rounded-xl bg-zinc-50">
+                      <div className="relative h-40 w-full" style={{ background: "#F0EEED" }}>
                         <Image
                           src={product.image ?? ""}
                           alt={product.title}
@@ -501,37 +752,111 @@ export default function CategoryPage() {
                           className="object-contain"
                         />
                       </div>
-                      <h3 className="line-clamp-2 text-sm font-semibold">
-                        {product.title}
-                      </h3>
-                      <p className="mt-2 text-sm font-bold">${product.price}</p>
+                      <div className="p-4">
+                        <h3
+                          className="line-clamp-2 text-[20px] font-bold leading-[20px] text-black"
+                          style={{ fontFamily: "var(--font-satoshi), sans-serif" }}
+                        >
+                          {product.title}
+                        </h3>
+                        <div className="mt-2">
+                          <RatingRow />
+                        </div>
+                        <div className="mt-2 flex flex-wrap items-center gap-3">
+                          {(() => {
+                            const seed =
+                              typeof product.id === "number"
+                                ? product.id
+                                : product.title.length + index;
+                            const discount = getDiscount(seed);
+                            const originalPrice = discount
+                              ? product.price / (1 - discount / 100)
+                              : product.price;
+                            return (
+                              <>
+                                <span
+                                  className="text-[24px] font-bold leading-8 text-black"
+                                  style={{ fontFamily: "var(--font-satoshi), sans-serif" }}
+                                >
+                                  {formatPrice(product.price)}
+                                </span>
+                                {discount > 0 && (
+                                  <>
+                                    <span className="text-[16px] text-zinc-400 line-through">
+                                      {formatPrice(originalPrice)}
+                                    </span>
+                                    <span
+                                      className="rounded-full px-2 py-0.5 text-[11px] font-semibold"
+                                      style={{
+                                        background: themeColors.accent.dangerSoft,
+                                        color: themeColors.accent.danger
+                                      }}
+                                    >
+                                      -{discount}%
+                                    </span>
+                                  </>
+                                )}
+                              </>
+                            );
+                          })()}
+                        </div>
+                      </div>
                     </Link>
                   </article>
                 ))}
               </div>
             )}
 
-            <div className="flex items-center justify-between text-xs text-zinc-500">
-              <button className="rounded-full border px-4 py-2">Previous</button>
+            <div className="mt-auto flex items-center justify-between text-xs text-zinc-500">
+              <button
+                className="rounded-lg border px-4 py-2"
+                style={{ borderColor: surface.border, background: surface.base }}
+                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+              >
+                <span className="mr-2">‹</span>
+                Previous
+              </button>
               <div className="flex items-center gap-2">
-                {["1", "2", "3", "...", "9", "10"].map((item) => (
-                  <span
-                    key={item}
-                    className={`rounded-full px-3 py-2 ${
-                      item === "1"
-                        ? "bg-zinc-900 text-white"
-                        : "border border-transparent"
-                    }`}
-                  >
-                    {item}
-                  </span>
-                ))}
+                {Array.from({ length: totalPages }, (_, index) => {
+                  const page = index + 1;
+                  const isActive = page === currentPage;
+                  return (
+                    <button
+                      key={page}
+                      type="button"
+                      className={`rounded-lg px-3 py-2 ${
+                        isActive ? "text-white" : "border border-transparent"
+                      }`}
+                      style={
+                        isActive
+                          ? { background: surface.text, color: surface.base }
+                          : undefined
+                      }
+                      onClick={() => setCurrentPage(page)}
+                    >
+                      {page}
+                    </button>
+                  );
+                })}
               </div>
-              <button className="rounded-full border px-4 py-2">Next</button>
+              <button
+                className="rounded-lg border px-4 py-2"
+                style={{ borderColor: surface.border, background: surface.base }}
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+                }
+                disabled={currentPage === totalPages}
+              >
+                Next
+                <span className="ml-2">›</span>
+              </button>
             </div>
           </div>
         </div>
       </div>
+
+      <Footer />
     </main>
   );
 }
