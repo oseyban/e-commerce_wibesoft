@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { getProductById, getProducts, type Product } from "@monorepo/api";
@@ -73,7 +73,7 @@ export default function ProductDetailPage() {
   const [selectedColor, setSelectedColor] = useState(colorOptions[0]);
   const [selectedSize, setSelectedSize] = useState(sizeOptions[2]);
   const [justAdded, setJustAdded] = useState(false);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState(0);
   const [activeTab, setActiveTab] = useState<"details" | "reviews" | "faqs">("reviews");
   const [sortOpen, setSortOpen] = useState(false);
   const [sortBy, setSortBy] = useState<"latest" | "highest" | "lowest">("latest");
@@ -97,7 +97,13 @@ export default function ProductDetailPage() {
     return [src, src, src];
   }, [data?.image]);
 
-  const activeImage = selectedImage ?? data?.image ?? "";
+  const activeImage = thumbnails[selectedIndex] ?? data?.image ?? "";
+
+  useEffect(() => {
+    if (selectedIndex >= thumbnails.length) {
+      setSelectedIndex(0);
+    }
+  }, [selectedIndex, thumbnails.length]);
 
   const formatPrice = (value: number) =>
     new Intl.NumberFormat("en-US", {
@@ -165,7 +171,7 @@ export default function ProductDetailPage() {
     );
   }
 
-  const primaryBg = justAdded ? colors.success : colors.brand[600];
+  const primaryBg = colors.black;
   const borderColor = colors.gray[200];
   const textMuted = colors.gray[600];
   const textSecondary = colors.gray[500];
@@ -189,19 +195,22 @@ export default function ProductDetailPage() {
       <div className="mx-auto max-w-[1200px] px-4 py-4 sm:px-6 sm:py-6 md:py-8">
 
         <section className="grid gap-6 sm:gap-8 lg:grid-cols-[minmax(0,100px)_1fr_minmax(0,1fr)] lg:gap-10">
-          {/* Thumbnails: horizontal on mobile, vertical on lg */}
-          <div className="flex flex-row gap-2 lg:flex-col lg:gap-3">
+          {/* Thumbnails*/}
+          <div className="order-2 flex flex-row justify-center gap-4 lg:order-none lg:flex-col lg:gap-3 lg:justify-between lg:h-[530px]">
             {thumbnails.length ? (
               thumbnails.map((src, index) => (
+                (() => {
+                  const isSelected = index === selectedIndex;
+                  return (
                 <button
                   key={`${src}-${index}`}
                   type="button"
-                  onClick={() => setSelectedImage(src)}
-                  className="relative flex h-20 w-20 shrink-0 items-center justify-center lg:h-24 lg:w-full"
+                  onClick={() => setSelectedIndex(index)}
+                  className={`relative flex h-[106px] w-[112px] shrink-0 items-center justify-center lg:w-[152px] ${isSelected ? "lg:h-[167px]" : "lg:h-[168px]"}`}
                   style={{
-                    borderRadius: radii.xl,
-                    border: `2px solid ${src === activeImage ? colors.brand[600] : borderColor}`,
-                    background: colors.gray[50],
+                    borderRadius: "20px",
+                    border: isSelected ? "1px solid #000000" : "0px solid transparent",
+                    background: "transparent",
                   }}
                 >
                   <Image
@@ -212,6 +221,8 @@ export default function ProductDetailPage() {
                     className="object-contain p-2 lg:p-3"
                   />
                 </button>
+                  );
+                })()
               ))
             ) : (
               <div
@@ -231,15 +242,15 @@ export default function ProductDetailPage() {
 
           {/* Main image */}
           <div
-            className="flex min-h-[240px] items-center justify-center sm:min-h-[280px] lg:min-h-[320px]"
+            className="order-1 flex min-h-[260px] items-center justify-center sm:min-h-[280px] lg:order-none lg:w-[444px] lg:h-[530px] lg:ml-4"
             style={{
-              borderRadius: radii.xl,
-              background: colors.gray[100],
+              borderRadius: "20px",
+              background: "#F0EEED",
               padding: spacing[6],
               boxShadow: shadows.sm,
             }}
           >
-            <div className="relative h-56 w-full sm:h-64 lg:h-72">
+            <div className="relative h-56 w-full sm:h-64 lg:h-full">
               <Image
                 src={activeImage}
                 alt={data.title}
@@ -252,7 +263,7 @@ export default function ProductDetailPage() {
           </div>
 
           {/* Details */}
-          <div className="min-w-0">
+          <div className="order-3 min-w-0 lg:order-none">
             <h1
               className="text-3xl font-bold uppercase leading-tight sm:text-4xl"
               style={{
@@ -310,8 +321,8 @@ export default function ProductDetailPage() {
               {data.description}
             </p>
 
-            <div className="mt-6 space-y-4 sm:mt-8">
-              <div>
+            <div className="mt-6 space-y-5 sm:mt-8">
+              <div className="border-t pt-4" style={{ borderColor }}>
                 <div style={{ fontSize: fontSizes.sm, fontWeight: fontWeights.semibold }}>Select Colors</div>
                 <div className="mt-2 flex flex-wrap gap-3">
                   {colorOptions.map((color) => {
@@ -338,15 +349,15 @@ export default function ProductDetailPage() {
                   })}
                 </div>
               </div>
-              <div>
+              <div className="border-t pt-4" style={{ borderColor }}>
                 <div style={{ fontSize: fontSizes.sm, fontWeight: fontWeights.semibold }}>Choose Size</div>
-                <div className="mt-2 flex flex-wrap gap-2">
+                <div className="mt-2 grid w-full grid-cols-4 gap-2">
                   {sizeOptions.map((size) => (
                     <button
                       key={size}
                       type="button"
                       onClick={() => setSelectedSize(size)}
-                      className="min-h-[40px] rounded-full border px-4 py-2 text-xs transition active:scale-95 sm:min-h-0"
+                      className="min-h-[40px] w-full rounded-full border px-4 py-2 text-xs transition active:scale-95 sm:min-h-0"
                       style={{
                         backgroundColor: selectedSize === size ? colors.black : colors.gray[100],
                         color: selectedSize === size ? colors.white : colors.gray[600],
@@ -358,7 +369,7 @@ export default function ProductDetailPage() {
                   ))}
                 </div>
               </div>
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              <div className="flex flex-row items-center gap-3 border-t pt-4" style={{ borderColor }}>
                 <div
                   className="flex items-center rounded-full border"
                   style={{
@@ -391,11 +402,13 @@ export default function ProductDetailPage() {
                 </div>
                 <button
                   type="button"
-                  className="touch-manipulation min-h-[44px] flex-1 rounded-full px-5 py-3 text-sm font-semibold text-white transition active:scale-95"
+                  className="touch-manipulation flex-1 rounded-full text-sm font-semibold text-white transition active:scale-95 h-[44px] lg:h-[52px]"
                   style={{
                     backgroundColor: primaryBg,
-                    borderRadius: radii.full,
+                    borderRadius: "62px",
                     boxShadow: shadows.sm,
+                    paddingLeft: "54px",
+                    paddingRight: "54px",
                   }}
                   onClick={() => {
                     if (!data.id) return;
@@ -421,9 +434,9 @@ export default function ProductDetailPage() {
           className="mt-10 border-b sm:mt-12"
           style={{ borderColor }}
         >
-          <div className="flex flex-wrap gap-4 sm:gap-6" style={{ fontSize: fontSizes.sm, fontWeight: fontWeights.semibold, color: textSecondary }}>
+          <div className="grid w-full grid-cols-3 text-center" style={{ fontSize: fontSizes.sm, fontWeight: fontWeights.semibold, color: textSecondary }}>
             <button
-              className="pb-3"
+              className="pb-3 w-full"
               style={{
                 borderBottom: activeTab === "details" ? `2px solid ${colors.black}` : "2px solid transparent",
                 color: activeTab === "details" ? colors.gray[900] : textSecondary,
@@ -434,7 +447,7 @@ export default function ProductDetailPage() {
               Product Details
             </button>
             <button
-              className="pb-3"
+              className="pb-3 w-full"
               style={{
                 borderBottom: activeTab === "reviews" ? `2px solid ${colors.black}` : "2px solid transparent",
                 color: activeTab === "reviews" ? colors.gray[900] : textSecondary,
@@ -445,7 +458,7 @@ export default function ProductDetailPage() {
               Rating & Reviews
             </button>
             <button
-              className="pb-3"
+              className="pb-3 w-full"
               style={{
                 borderBottom: activeTab === "faqs" ? `2px solid ${colors.black}` : "2px solid transparent",
                 color: activeTab === "faqs" ? colors.gray[900] : textSecondary,
@@ -469,27 +482,27 @@ export default function ProductDetailPage() {
 
         {activeTab === "reviews" && (
           <section className="mt-6 sm:mt-8">
-            <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="mb-4 flex items-center justify-between gap-3">
               <div>
                 <h2 style={{ fontSize: fontSizes.xl, fontWeight: fontWeights.bold }}>
                   All Reviews <span style={{ color: textSecondary, fontWeight: 400 }}>(451)</span>
                 </h2>
               </div>
-              <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
+              <div className="flex flex-1 items-center justify-end gap-2 sm:gap-3">
                 <button
                   type="button"
-                  className="flex items-center justify-center rounded-full bg-zinc-100 px-4 py-2"
-                  style={{ minWidth: 48, minHeight: 48 }}
+                  className="flex items-center justify-center rounded-full bg-zinc-100 px-3 py-2 sm:px-4"
+                  style={{ minWidth: 40, minHeight: 40 }}
                   aria-label="Filter reviews"
                 >
                   <Image src={ASSETS.filter} alt="Filter" width={20} height={20} unoptimized />
                 </button>
-                <div className="relative w-full sm:w-auto">
+                <div className="relative hidden sm:block">
                   <button
                     type="button"
                     onClick={() => setSortOpen((prev) => !prev)}
-                    className="flex w-full items-center justify-between gap-2 rounded-full bg-zinc-100 px-4 py-2 sm:w-auto"
-                    style={{ minHeight: 48, fontSize: "16px", fontWeight: 500, color: colors.black }}
+                    className="flex items-center justify-between gap-2 rounded-full bg-zinc-100 px-3 py-2 sm:px-4"
+                    style={{ minHeight: 40, minWidth: 96, fontSize: "12px", fontWeight: 500, color: colors.black }}
                     aria-haspopup="listbox"
                     aria-expanded={sortOpen}
                   >
@@ -519,8 +532,8 @@ export default function ProductDetailPage() {
                   )}
                 </div>
                 <button
-                  className="w-full rounded-full bg-black px-5 py-3 text-sm font-medium text-white sm:w-auto"
-                  style={{ fontSize: "16px", lineHeight: "22px" }}
+                  className="rounded-full bg-black px-3 py-2 text-[12px] font-medium text-white sm:px-5 sm:py-3 sm:text-sm"
+                  style={{ lineHeight: "22px" }}
                   type="button"
                 >
                   Write a Review
@@ -528,11 +541,11 @@ export default function ProductDetailPage() {
               </div>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
-              {sortedReviews.slice(0, visibleReviews).map((review) => (
+              {sortedReviews.slice(0, visibleReviews).map((review, index) => (
                 <div
                   key={review.id}
-                  className="rounded-2xl border p-4"
-                  style={{ borderColor, borderRadius: radii.xl, boxShadow: shadows.sm }}
+                  className={`rounded-[20px] border p-5 ${index >= 3 ? "hidden sm:block" : ""}`}
+                  style={{ borderColor: "rgba(0, 0, 0, 0.1)" }}
                 >
                   <div className="flex items-center gap-1" style={{ color: colors.warning, fontSize: fontSizes.sm }}>
                     {"★★★★★"}
@@ -556,7 +569,7 @@ export default function ProductDetailPage() {
                 className="rounded-full border px-6 py-2 text-sm"
                 style={{ borderColor }}
                 type="button"
-                onClick={() => setVisibleReviews(8)}
+                onClick={() => setVisibleReviews((prev) => Math.min(prev + 2, reviewList.length))}
               >
                 Load More Reviews
               </button>
@@ -584,8 +597,8 @@ export default function ProductDetailPage() {
           <h2
             className="mb-6 text-center"
             style={{
-              fontSize: "48px",
-              lineHeight: "58px",
+              fontSize: "32px",
+              lineHeight: "36px",
               fontWeight: 700,
               fontFamily: "var(--font-integral)",
               color: colors.black,
@@ -593,7 +606,7 @@ export default function ProductDetailPage() {
           >
             You Might Also Like
           </h2>
-          <div className="grid gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
             {relatedProducts.map((item, index) => (
               (() => {
                 const seed = Number(item.id ?? index + 1);
@@ -606,7 +619,7 @@ export default function ProductDetailPage() {
               <Link
                 key={item.id ?? `${item.title}-${index}`}
                 href={item.id != null ? `/product/${item.id}` : "#"}
-                className="block"
+                className={index >= 2 ? "hidden sm:block" : "block"}
               >
                 <div
                   className="mb-4 rounded-2xl p-4"
