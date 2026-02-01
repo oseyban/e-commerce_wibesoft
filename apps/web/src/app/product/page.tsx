@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { getProducts } from "@monorepo/api";
 import type { Product } from "@monorepo/api";
@@ -29,8 +30,9 @@ export default function ProductsPage() {
 
       <section className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {data.map((product) => (
-          <article
+          <Link
             key={product.id}
+            href={product.id != null ? `/product/${product.id}` : "#"}
             className="flex flex-col rounded-xl border border-neutral-200 bg-white p-4 shadow-sm transition hover:shadow-md dark:border-neutral-800 dark:bg-neutral-900"
           >
             <div className="relative mb-4 flex h-40 w-full items-center justify-center">
@@ -48,7 +50,7 @@ export default function ProductsPage() {
             </h2>
 
             <p className="mt-auto text-lg font-semibold">${product.price}</p>
-          </article>
+          </Link>
         ))}
       </section>
     </main>

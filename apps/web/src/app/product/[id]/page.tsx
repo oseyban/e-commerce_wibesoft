@@ -7,6 +7,7 @@ import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { getProductById, getProducts, type Product } from "@monorepo/api";
 import { useStore } from "@/lib/store";
+import { colors, spacing, radii, fontSizes, fontWeights, shadows } from "@monorepo/design-tokens";
 
 type Review = {
   id: string;
@@ -50,15 +51,6 @@ const reviews: Review[] = [
 const colorOptions = ["Black", "White", "Olive", "Navy"];
 const sizeOptions = ["Small", "Medium", "Large", "X-Large"];
 
-const normalizeProducts = async (): Promise<Product[]> => {
-  const res = await getProducts();
-  if (Array.isArray(res)) return res;
-  if (res && typeof res === "object" && "data" in res) {
-    return (res as { data?: Product[] }).data ?? [];
-  }
-  return [];
-};
-
 export default function ProductDetailPage() {
   const params = useParams<{ id: string }>();
   const productId = useMemo(() => Number(params?.id), [params?.id]);
@@ -70,8 +62,8 @@ export default function ProductDetailPage() {
   });
 
   const { data: allProducts = [] } = useQuery<Product[]>({
-    queryKey: ["products", "related"],
-    queryFn: normalizeProducts
+    queryKey: ["products"],
+    queryFn: getProducts,
   });
 
   const [qty, setQty] = useState(1);
@@ -101,84 +93,144 @@ export default function ProductDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <p className="text-zinc-500">Yükleniyor…</p>
+      <div className="flex min-h-[50vh] items-center justify-center px-4">
+        <p style={{ color: colors.gray[500], fontSize: fontSizes.sm }}>Yükleniyor…</p>
       </div>
     );
   }
 
   if (isError || !data) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <p className="text-red-500">Ürün yüklenemedi</p>
+      <div className="flex min-h-[50vh] items-center justify-center px-4">
+        <p style={{ color: colors.danger, fontSize: fontSizes.sm }}>Ürün yüklenemedi</p>
       </div>
     );
   }
 
-  return (
-    <main className="bg-white text-zinc-900">
-      <div className="mx-auto max-w-6xl px-6 py-10">
-        <div className="mb-8 text-xs text-zinc-500">
-          Home / Shop / Men / T-Shirts
-        </div>
+  const primaryBg = justAdded ? colors.success : colors.brand[600];
+  const borderColor = colors.gray[200];
+  const textMuted = colors.gray[600];
+  const textSecondary = colors.gray[500];
 
-        <section className="grid gap-10 lg:grid-cols-[120px_1fr_1fr]">
-          <div className="flex flex-col gap-3">
+  return (
+    <main style={{ background: colors.white, color: colors.gray[900] }}>
+      <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8 md:py-10">
+        <nav
+          className="mb-6 sm:mb-8"
+          style={{ fontSize: fontSizes.xs, color: textSecondary }}
+          aria-label="Breadcrumb"
+        >
+          <Link href="/" className="hover:underline">Home</Link>
+          <span className="mx-2">/</span>
+          <Link href="/product" className="hover:underline">Shop</Link>
+          <span className="mx-2">/</span>
+          <span>{data.category}</span>
+        </nav>
+
+        <section className="grid gap-6 sm:gap-8 lg:grid-cols-[minmax(0,100px)_1fr_minmax(0,1fr)] lg:gap-10">
+          {/* Thumbnails: horizontal on mobile, vertical on lg */}
+          <div className="flex flex-row gap-2 lg:flex-col lg:gap-3">
             {thumbnails.length ? (
               thumbnails.map((src, index) => (
                 <div
                   key={`${src}-${index}`}
-                  className="relative flex h-24 w-full items-center justify-center rounded-xl border bg-zinc-50"
+                  className="relative flex h-20 w-20 shrink-0 items-center justify-center lg:h-24 lg:w-full"
+                  style={{
+                    borderRadius: radii.xl,
+                    border: `1px solid ${borderColor}`,
+                    background: colors.gray[50],
+                  }}
                 >
                   <Image
                     src={src}
                     alt={`${data.title} thumbnail ${index + 1}`}
                     fill
                     unoptimized
-                    className="object-contain p-3"
+                    className="object-contain p-2 lg:p-3"
                   />
                 </div>
               ))
             ) : (
-              <div className="flex h-24 w-full items-center justify-center rounded-xl border bg-zinc-50 text-xs text-zinc-400">
+              <div
+                className="flex h-20 w-20 shrink-0 items-center justify-center lg:h-24 lg:w-full"
+                style={{
+                  borderRadius: radii.xl,
+                  border: `1px solid ${borderColor}`,
+                  background: colors.gray[50],
+                  fontSize: fontSizes.xs,
+                  color: colors.gray[400],
+                }}
+              >
                 No image
               </div>
             )}
           </div>
 
-          <div className="flex items-center justify-center rounded-3xl bg-zinc-100 p-8">
-            <div className="relative h-72 w-full">
+          {/* Main image */}
+          <div
+            className="flex min-h-[240px] items-center justify-center sm:min-h-[280px] lg:min-h-[320px]"
+            style={{
+              borderRadius: radii.xl,
+              background: colors.gray[100],
+              padding: spacing[6],
+              boxShadow: shadows.sm,
+            }}
+          >
+            <div className="relative h-56 w-full sm:h-64 lg:h-72">
               <Image
                 src={data.image ?? ""}
                 alt={data.title}
                 fill
                 unoptimized
                 className="object-contain"
+                sizes="(max-width: 768px) 100vw, 50vw"
               />
             </div>
           </div>
 
-          <div>
-            <h1 className="text-3xl font-extrabold">{data.title}</h1>
-            <div className="mt-3 flex items-center gap-2 text-sm text-zinc-600">
-              <span className="text-yellow-500">★★★★★</span>
+          {/* Details */}
+          <div className="min-w-0">
+            <h1
+              className="text-2xl font-bold leading-tight sm:text-3xl"
+              style={{ fontSize: fontSizes["3xl"], fontWeight: fontWeights.bold }}
+            >
+              {data.title}
+            </h1>
+            <div
+              className="mt-3 flex items-center gap-2"
+              style={{ fontSize: fontSizes.sm, color: textMuted }}
+            >
+              <span style={{ color: colors.warning }}>★★★★★</span>
               <span>4.5/5</span>
             </div>
-            <div className="mt-4 text-2xl font-bold">${data.price}</div>
-            <p className="mt-4 text-sm text-zinc-600">{data.description}</p>
+            <div
+              className="mt-4"
+              style={{ fontSize: fontSizes["2xl"], fontWeight: fontWeights.bold, color: colors.brand[600] }}
+            >
+              ${data.price}
+            </div>
+            <p
+              className="mt-4"
+              style={{ fontSize: fontSizes.sm, color: textMuted, lineHeight: 1.6 }}
+            >
+              {data.description}
+            </p>
 
-            <div className="mt-6 space-y-4">
+            <div className="mt-6 space-y-4 sm:mt-8">
               <div>
-                <div className="text-sm font-semibold">Select Colors</div>
-                <div className="mt-2 flex gap-2">
+                <div style={{ fontSize: fontSizes.sm, fontWeight: fontWeights.semibold }}>Select Colors</div>
+                <div className="mt-2 flex flex-wrap gap-2">
                   {colorOptions.map((color) => (
                     <button
                       key={color}
                       type="button"
                       onClick={() => setSelectedColor(color)}
-                      className={`rounded-full border px-4 py-2 text-xs transition active:scale-95 ${
-                        selectedColor === color ? "bg-black text-white" : ""
-                      }`}
+                      className="min-h-[44px] rounded-full border px-4 py-2 text-xs transition active:scale-95 sm:min-h-0"
+                      style={{
+                        backgroundColor: selectedColor === color ? colors.brand[600] : "transparent",
+                        color: selectedColor === color ? colors.white : colors.gray[900],
+                        borderColor,
+                      }}
                     >
                       {color}
                     </button>
@@ -186,53 +238,72 @@ export default function ProductDetailPage() {
                 </div>
               </div>
               <div>
-                <div className="text-sm font-semibold">Choose Size</div>
+                <div style={{ fontSize: fontSizes.sm, fontWeight: fontWeights.semibold }}>Choose Size</div>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {sizeOptions.map((size) => (
                     <button
                       key={size}
                       type="button"
                       onClick={() => setSelectedSize(size)}
-                      className={`rounded-full border px-4 py-2 text-xs transition active:scale-95 ${
-                        selectedSize === size ? "bg-black text-white" : ""
-                      }`}
+                      className="min-h-[44px] rounded-full border px-4 py-2 text-xs transition active:scale-95 sm:min-h-0"
+                      style={{
+                        backgroundColor: selectedSize === size ? colors.brand[600] : "transparent",
+                        color: selectedSize === size ? colors.white : colors.gray[900],
+                        borderColor,
+                      }}
                     >
                       {size}
                     </button>
                   ))}
                 </div>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="flex items-center rounded-full border px-3 py-2 text-sm">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                <div
+                  className="flex items-center rounded-full border"
+                  style={{
+                    paddingLeft: spacing[3],
+                    paddingRight: spacing[3],
+                    paddingTop: spacing[2],
+                    paddingBottom: spacing[2],
+                    fontSize: fontSizes.sm,
+                    borderColor,
+                    minHeight: 44,
+                  }}
+                >
                   <button
-                    className="px-2"
                     type="button"
+                    className="touch-manipulation px-2 text-lg"
                     onClick={() => setQty((prev) => Math.max(1, prev - 1))}
+                    aria-label="Decrease quantity"
                   >
-                    -
+                    −
                   </button>
-                  <span className="px-2">{qty}</span>
+                  <span className="min-w-[2ch] px-2 text-center">{qty}</span>
                   <button
-                    className="px-2"
                     type="button"
+                    className="touch-manipulation px-2 text-lg"
                     onClick={() => setQty((prev) => prev + 1)}
+                    aria-label="Increase quantity"
                   >
                     +
                   </button>
                 </div>
                 <button
                   type="button"
-                  className={`flex-1 rounded-full px-5 py-3 text-sm font-semibold text-white transition active:scale-95 ${
-                    justAdded ? "bg-emerald-600" : "bg-black"
-                  }`}
+                  className="touch-manipulation min-h-[44px] flex-1 rounded-full px-5 py-3 text-sm font-semibold text-white transition active:scale-95"
+                  style={{
+                    backgroundColor: primaryBg,
+                    borderRadius: radii.full,
+                    boxShadow: shadows.sm,
+                  }}
                   onClick={() => {
                     if (!data.id) return;
                     add({
                       id: data.id,
                       title: data.title,
                       price: data.price,
-                      image: data.image,
-                      qty
+                      image: data.image ?? null,
+                      qty,
                     });
                     setJustAdded(true);
                     window.setTimeout(() => setJustAdded(false), 900);
@@ -245,9 +316,12 @@ export default function ProductDetailPage() {
           </div>
         </section>
 
-        <section className="mt-12 border-b">
-          <div className="flex gap-6 text-sm font-semibold text-zinc-500">
-            <button className="border-b-2 border-black pb-3 text-zinc-900">
+        <section
+          className="mt-10 border-b sm:mt-12"
+          style={{ borderColor }}
+        >
+          <div className="flex flex-wrap gap-4 sm:gap-6" style={{ fontSize: fontSizes.sm, fontWeight: fontWeights.semibold, color: textSecondary }}>
+            <button className="border-b-2 pb-3" style={{ borderColor: colors.brand[600], color: colors.gray[900] }}>
               Product Details
             </button>
             <button className="pb-3">Rating & Reviews</button>
@@ -255,58 +329,65 @@ export default function ProductDetailPage() {
           </div>
         </section>
 
-        <section className="mt-8">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-xl font-bold">All Reviews</h2>
-            <button className="rounded-full border px-4 py-2 text-xs">
+        <section className="mt-6 sm:mt-8">
+          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <h2 style={{ fontSize: fontSizes.xl, fontWeight: fontWeights.bold }}>All Reviews</h2>
+            <button
+              className="w-full rounded-full border py-2 sm:w-auto sm:px-4"
+              style={{ fontSize: fontSizes.xs, borderColor }}
+            >
               Write a Review
             </button>
           </div>
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-2">
             {reviews.map((review) => (
               <div
                 key={review.id}
-                className="rounded-2xl border border-zinc-200 p-4"
+                className="rounded-2xl border p-4"
+                style={{ borderColor, borderRadius: radii.xl, boxShadow: shadows.sm }}
               >
-                <div className="flex items-center justify-between text-sm font-semibold">
+                <div className="flex items-center justify-between" style={{ fontSize: fontSizes.sm, fontWeight: fontWeights.semibold }}>
                   <span>{review.name}</span>
-                  <span className="text-yellow-500">★★★★★</span>
+                  <span style={{ color: colors.warning }}>★★★★★</span>
                 </div>
-                <p className="mt-2 text-xs text-zinc-600">{review.text}</p>
-                <p className="mt-3 text-[11px] text-zinc-400">{review.date}</p>
+                <p className="mt-2" style={{ fontSize: fontSizes.xs, color: textMuted }}>{review.text}</p>
+                <p className="mt-3" style={{ fontSize: "11px", color: colors.gray[400] }}>{review.date}</p>
               </div>
             ))}
           </div>
         </section>
 
-        <section className="mt-12">
-          <h2 className="mb-6 text-2xl font-bold">You Might Also Like</h2>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <section className="mt-10 sm:mt-12">
+          <h2 className="mb-6" style={{ fontSize: fontSizes["2xl"], fontWeight: fontWeights.bold }}>You Might Also Like</h2>
+          <div className="grid gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
             {relatedProducts.map((item, index) => (
               <Link
                 key={item.id ?? `${item.title}-${index}`}
-                href={item.id ? `/product/${item.id}` : "#"}
-                className="rounded-2xl border border-zinc-200 bg-white p-4"
+                href={item.id != null ? `/product/${item.id}` : "#"}
+                className="block rounded-2xl border p-4 transition hover:shadow-md"
+                style={{ borderColor, borderRadius: radii.xl, background: colors.white, boxShadow: shadows.sm }}
               >
-                <div className="relative mb-4 h-40 w-full overflow-hidden rounded-xl bg-zinc-50">
+                <div
+                  className="relative mb-4 h-36 w-full overflow-hidden sm:h-40"
+                  style={{ borderRadius: radii.xl, background: colors.gray[50] }}
+                >
                   <Image
                     src={item.image ?? ""}
                     alt={item.title}
                     fill
                     unoptimized
                     className="object-contain"
+                    sizes="(max-width: 640px) 50vw, 25vw"
                   />
                 </div>
-                <div className="line-clamp-2 text-sm font-semibold">
+                <div className="line-clamp-2" style={{ fontSize: fontSizes.sm, fontWeight: fontWeights.semibold }}>
                   {item.title}
                 </div>
-                <div className="text-sm font-bold">${item.price}</div>
+                <div style={{ fontSize: fontSizes.sm, fontWeight: fontWeights.bold, color: colors.brand[600] }}>${item.price}</div>
               </Link>
             ))}
-            {!relatedProducts.length && (
-              <div className="text-sm text-zinc-500">
-                No related products found.
-              </div>
+            {relatedProducts.length === 0 && (
+              <p style={{ fontSize: fontSizes.sm, color: textSecondary }}>No related products found.</p>
             )}
           </div>
         </section>
