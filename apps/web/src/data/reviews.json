@@ -1,0 +1,58 @@
+[
+  {
+    "id": "rev-1",
+    "name": "Samantha D.",
+    "rating": 4,
+    "date": "Posted on August 14, 2023",
+    "text": "I absolutely love this shirt! The design is unique and the fabric feels so comfortable."
+  },
+  {
+    "id": "rev-2",
+    "name": "Alex M.",
+    "rating": 5,
+    "date": "Posted on August 12, 2023",
+    "text": "Looks great and fits perfectly. The quality exceeded my expectations."
+  },
+  {
+    "id": "rev-3",
+    "name": "Ethan R.",
+    "rating": 4,
+    "date": "Posted on August 10, 2023",
+    "text": "Very comfortable and stylish. I received compliments the first day I wore it."
+  },
+  {
+    "id": "rev-4",
+    "name": "Olivia P.",
+    "rating": 5,
+    "date": "Posted on August 8, 2023",
+    "text": "Great fit and premium material. Highly recommend!"
+  },
+  {
+    "id": "rev-5",
+    "name": "Liam K.",
+    "rating": 4,
+    "date": "Posted on August 16, 2023",
+    "text": "The fabric is soft and the cut feels premium. Would buy another color."
+  },
+  {
+    "id": "rev-6",
+    "name": "Ava H.",
+    "rating": 5,
+    "date": "Posted on August 19, 2023",
+    "text": "The print quality is top-notch and it washes well without fading."
+  },
+  {
+    "id": "rev-7",
+    "name": "Noah S.",
+    "rating": 4,
+    "date": "Posted on August 21, 2023",
+    "text": "Good fit overall. Sleeves are slightly longer than expected but still nice."
+  },
+  {
+    "id": "rev-8",
+    "name": "Mia T.",
+    "rating": 5,
+    "date": "Posted on August 23, 2023",
+    "text": "Super comfortable and looks exactly like the photos. Fast delivery too."
+  }
+]

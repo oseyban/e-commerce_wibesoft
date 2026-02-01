@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Image from "next/image";
 import { useStore } from "../../lib/store";
+import Header from "../../components/Header";
+import Footer from "../../components/Footer";
+import CartItem from "../../components/cart/CartItem";
 
 type CartItem = {
   id: number;
@@ -62,22 +64,7 @@ export default function CartPage() {
 
   return (
     <main className="bg-white text-zinc-900">
-      <header className="border-b border-zinc-200">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <div className="text-lg font-extrabold tracking-tight">SHOP.CO</div>
-          <div className="hidden items-center gap-6 text-sm text-zinc-600 md:flex">
-            <span>Shop</span>
-            <span>On Sale</span>
-            <span>New Arrivals</span>
-            <span>Brands</span>
-          </div>
-          <div className="flex items-center gap-3 text-zinc-600">
-            <span>🔍</span>
-            <span>🛒</span>
-            <span>👤</span>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       <div className="mx-auto max-w-6xl px-6 py-10">
         <div className="mb-4 text-xs text-zinc-500">Home / Cart</div>
@@ -87,60 +74,13 @@ export default function CartPage() {
           <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr]">
             <section className="space-y-4">
               {displayItems.map((item) => (
-                <div
+                <CartItem
                   key={item.id}
-                  className="flex flex-col gap-4 rounded-2xl border border-zinc-200 p-4 sm:flex-row sm:items-center"
-                >
-                  <div className="relative flex h-28 w-28 items-center justify-center overflow-hidden rounded-xl bg-zinc-100 text-xs text-zinc-400">
-                    {item.image ? (
-                      <Image
-                        src={item.image}
-                        alt={item.title}
-                        fill
-                        unoptimized
-                        className="object-contain"
-                      />
-                    ) : (
-                      "Image"
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <div className="text-sm font-semibold">{item.title}</div>
-                        <p className="mt-1 text-xs text-zinc-500">Size: Large</p>
-                        <p className="text-xs text-zinc-500">Color: White</p>
-                      </div>
-                      <button
-                        className="text-red-500"
-                        onClick={() => remove(item.id)}
-                        type="button"
-                      >
-                        🗑️
-                      </button>
-                    </div>
-                    <div className="mt-3 flex items-center justify-between">
-                      <div className="text-lg font-bold">{format(item.price)}</div>
-                      <div className="flex items-center rounded-full border px-3 py-2 text-sm">
-                        <button
-                          className="px-2"
-                          onClick={() => setQty(item.id, item.qty - 1)}
-                          type="button"
-                        >
-                          -
-                        </button>
-                        <span className="px-2">{item.qty}</span>
-                        <button
-                          className="px-2"
-                          onClick={() => setQty(item.id, item.qty + 1)}
-                          type="button"
-                        >
-                          +
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                  item={item}
+                  onRemove={remove}
+                  onQtyChange={setQty}
+                  format={format}
+                />
               ))}
             </section>
 
@@ -186,6 +126,7 @@ export default function CartPage() {
           <div className="py-20 text-center text-zinc-500">Loading cart...</div>
         )}
       </div>
+      <Footer />
     </main>
   );
 }

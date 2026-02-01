@@ -6,6 +6,8 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getProducts, type Product } from "@monorepo/api";
 import testimonials from "../data/testimonials.json";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
 
 const ASSETS = {
   logo: "/images/logo.png",
@@ -87,65 +89,7 @@ export default function HomePage() {
 
   return (
     <main className="bg-white text-zinc-900">
-      {/* Top promo */}
-      <div className="bg-black text-white">
-        <div className="mx-auto max-w-[1200px] px-4 py-2 text-center text-xs sm:px-5">
-          Sign up and get 20% off to your first order. <span className="underline">Sign Up Now</span>
-        </div>
-      </div>
-
-      {/* Header */}
-      <header className="border-b border-zinc-200">
-        <div className="mx-auto flex max-w-[1200px] items-center justify-between gap-4 px-4 py-3 sm:px-5 sm:py-4">
-          <div className="flex items-center gap-4 sm:gap-6">
-            {/* Mobile hamburger */}
-            <button type="button" className="inline-flex items-center lg:hidden" aria-label="Open menu">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
-                <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-              </svg>
-            </button>
-
-            <Link href="/" className="inline-flex items-center">
-              <Image src={ASSETS.logo} alt="Shop.co" width={140} height={22} unoptimized priority />
-            </Link>
-
-            <nav className="hidden lg:flex items-center gap-5 text-[16px] leading-[22px] whitespace-nowrap">
-              <Link className="text-sm" href="/shop">Shop</Link>
-              <Link className="text-sm" href="/onsale">On Sale</Link>
-              <Link className="text-sm" href="/new-arrivals">New Arrivals</Link>
-              <Link className="text-sm" href="/brands">Brands</Link>
-            </nav>
-          </div>
-
-          {/* Search input */}
-          <div className="hidden lg:flex flex-1 justify-center">
-            <div className="relative w-full max-w-[560px]">
-              <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-zinc-400">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
-                  <path d="M21 21l-4.35-4.35m1.6-4.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                </svg>
-              </span>
-              <input
-                type="search"
-                placeholder="Search for products..."
-                className="w-full rounded-full border border-zinc-200 bg-zinc-100 py-2.5 pl-9 pr-4 text-sm outline-none"
-                aria-label="Search products"
-              />
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3 sm:gap-4">
-            {/* Mobil search icon */}
-            <button type="button" className="inline-flex items-center lg:hidden" aria-label="Search">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
-                <path d="M21 21l-4.35-4.35m1.6-4.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-              </svg>
-            </button>
-            <Image src={ASSETS.cart} alt="cart" width={24} height={24} unoptimized />
-            <Image src={ASSETS.profile} alt="profile" width={24} height={24} unoptimized />
-          </div>
-        </div>
-      </header>
+      <Header />
 
       {/* HERO */}
       <section className="relative w-full bg-[#F2F0F1]">
@@ -463,84 +407,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Newsletter */}
-      <section className="relative py-12">
-        <div className="absolute inset-x-0 top-1/2 bottom-0 bg-zinc-100" />
-        <div className="relative mx-auto max-w-[1200px] px-4 sm:px-5">
-          <div className="rounded-3xl bg-black px-8 py-8 text-white flex flex-col gap-4 sm:flex-row items-center justify-between">
-            <div className="max-w-md">
-              <h3 className="text-2xl font-extrabold leading-tight">
-                <span className="block">STAY UPTO DATE ABOUT</span>
-                <span className="block">OUR LATEST OFFERS</span>
-              </h3>
-            </div>
-            <div className="flex w-full max-w-[360px] flex-col gap-3">
-              <div className="relative">
-                <span className="pointer-events-none absolute inset-y-0 left-4 flex items-center text-zinc-400">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
-                    <path d="M4 6h16v12H4z" stroke="currentColor" strokeWidth="2" />
-                    <path d="M4 7l8 6 8-6" stroke="currentColor" strokeWidth="2" />
-                  </svg>
-                </span>
-                <input placeholder="Enter your email address" className="w-full rounded-full bg-white px-10 py-3 text-sm text-zinc-900" />
-              </div>
-              <button className="rounded-full bg-white px-6 py-3 text-sm font-semibold text-zinc-900">Subscribe to Newsletter</button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="bg-zinc-100">
-        <div className="mx-auto max-w-[1200px] px-4 py-12 sm:px-5">
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-5">
-            <div className="lg:col-span-1">
-              <Image src={ASSETS.logo} alt="Shop.co" width={140} height={22} />
-              <p className="mt-3 text-xs text-zinc-600">
-                We have clothes that suits your style and which you’re proud to wear. From women to men.
-              </p>
-              <div className="mt-4">
-                <Image src={ASSETS.social} alt="Social icons" width={120} height={24} />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-8 sm:contents">
-              <div>
-              <div className="mb-2 text-xs font-semibold tracking-widest text-zinc-700">COMPANY</div>
-              <ul className="space-y-2 text-xs text-zinc-600">
-                <li>About</li><li>Features</li><li>Works</li><li>Career</li>
-              </ul>
-            </div>
-
-            <div>
-              <div className="mb-2 text-xs font-semibold tracking-widest text-zinc-700">HELP</div>
-              <ul className="space-y-2 text-xs text-zinc-600">
-                <li>Customer Support</li><li>Delivery Details</li><li>Terms & Conditions</li><li>Privacy Policy</li>
-              </ul>
-            </div>
-
-            <div>
-              <div className="mb-2 text-xs font-semibold tracking-widest text-zinc-700">FAQ</div>
-              <ul className="space-y-2 text-xs text-zinc-600">
-                <li>Account</li><li>Manage Deliveries</li><li>Orders</li><li>Payments</li>
-              </ul>
-            </div>
-
-            <div>
-              <div className="mb-2 text-xs font-semibold tracking-widest text-zinc-700">RESOURCES</div>
-              <ul className="space-y-2 text-xs text-zinc-600">
-                <li>Free eBooks</li><li>Development Tutorial</li><li>How to - Blog</li><li>Youtube Playlist</li>
-              </ul>
-            </div>
-            </div>
-          </div>
-
-          <div className="mt-8 flex items-center justify-between border-t border-zinc-200 pt-4 text-xs text-zinc-500">
-            <span>Shop.co © 2000-2023, All Rights Reserved</span>
-            <Image src={ASSETS.finance} alt="Payment methods" width={260} height={32} />
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </main>
   );
 }
