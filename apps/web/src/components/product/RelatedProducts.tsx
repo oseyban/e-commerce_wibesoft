@@ -1,8 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Product } from "@monorepo/api";
-import { colors, radii, fontSizes } from "../../../../../packages/design-tokens/src";
-import { themeColors } from "../../data/theme-colors";
 
 type RelatedProductsProps = {
   products: Product[];
@@ -19,16 +17,7 @@ export default function RelatedProducts({
 }: RelatedProductsProps) {
   return (
     <section className="mt-10 sm:mt-12">
-      <h2
-        className="mb-6 text-center"
-        style={{
-          fontSize: "32px",
-          lineHeight: "36px",
-          fontWeight: 700,
-          fontFamily: "var(--font-integral)",
-          color: colors.black,
-        }}
-      >
+      <h2 className="mb-6 text-center text-[32px] font-bold leading-[36px] text-black font-[var(--font-integral)]">
         You Might Also Like
       </h2>
       <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
@@ -45,10 +34,7 @@ export default function RelatedProducts({
               href={item.id != null ? `/product/${item.id}` : "#"}
               className={index >= 2 ? "hidden sm:block" : "block"}
             >
-              <div
-                className="mb-4 rounded-2xl p-4"
-                style={{ background: colors.gray[50], borderRadius: radii.xl }}
-              >
+              <div className="mb-4 rounded-2xl bg-[#F0EEED] p-4">
                 <div className="relative h-36 w-full overflow-hidden sm:h-40">
                   <Image
                     src={item.image ?? ""}
@@ -60,20 +46,11 @@ export default function RelatedProducts({
                   />
                 </div>
               </div>
-              <div
-                className="line-clamp-2"
-                style={{
-                  fontSize: "20px",
-                  lineHeight: "27px",
-                  fontWeight: 700,
-                  fontFamily: "var(--font-satoshi)",
-                  color: colors.black,
-                }}
-              >
+              <div className="line-clamp-2 text-[20px] font-bold leading-[27px] text-black font-[var(--font-satoshi)]">
                 {item.title}
               </div>
               <div className="mt-2 flex items-center gap-2 text-xs text-zinc-500">
-                <span style={{ color: colors.warning }}>★★★★★</span>
+                <span className="text-[#FFC633]">★★★★★</span>
                 <span>{getRatingRate(item).toFixed(1)}/5</span>
               </div>
               <div className="mt-2 flex flex-wrap items-center gap-2">
@@ -83,13 +60,7 @@ export default function RelatedProducts({
                     <div className="text-sm text-zinc-400 line-through">
                       {formatPrice(currentPrice)}
                     </div>
-                    <span
-                      className="rounded-full px-2 py-0.5 text-xs font-semibold"
-                      style={{
-                        background: themeColors.accent.dangerSoft,
-                        color: themeColors.accent.danger,
-                      }}
-                    >
+                    <span className="rounded-full bg-[#FF33331A] px-2 py-0.5 text-xs font-semibold text-[#FF3333]">
                       -{relatedDiscount}%
                     </span>
                   </>
@@ -99,9 +70,7 @@ export default function RelatedProducts({
           );
         })}
         {products.length === 0 && (
-          <p style={{ fontSize: fontSizes.sm, color: colors.gray[500] }}>
-            No related products found.
-          </p>
+          <p className="text-sm text-zinc-500">No related products found.</p>
         )}
       </div>
     </section>

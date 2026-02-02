@@ -20,7 +20,7 @@ export default function ProductSection({
 }: ProductSectionProps) {
   return (
     <section className="mx-auto max-w-[1200px] px-4 py-12 sm:px-5">
-      <h2 className={titleClassName} style={{ fontFamily: "var(--font-integral), sans-serif" }}>
+      <h2 className={`${titleClassName} font-[var(--font-integral)]`}>
         {title}
       </h2>
 
@@ -40,7 +40,7 @@ export default function ProductSection({
                   <Image src={p.image ?? ""} alt={p.title} fill unoptimized className="object-contain" />
                 </div>
                 <div className="p-4">
-                  <h3 className="text-sm font-semibold line-clamp-2" style={{ fontFamily: "var(--font-satoshi), sans-serif" }}>
+                  <h3 className="text-sm font-semibold line-clamp-2 font-[var(--font-satoshi)]">
                     {p.title}
                   </h3>
                   <div className="mt-2">

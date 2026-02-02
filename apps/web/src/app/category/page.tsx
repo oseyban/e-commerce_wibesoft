@@ -8,7 +8,6 @@ import CategoryHeader from "../../components/category/CategoryHeader";
 import { FilterDrawer, FilterSidebar } from "../../components/category/FiltersPanel";
 import Pagination from "../../components/category/Pagination";
 import ProductGrid from "../../components/category/ProductGrid";
-import { themeColors } from "../../data/theme-colors";
 import { useProducts } from "../../hooks/useProducts";
 
 const categories = ["T-shirts", "Shorts", "Shirts", "Hoodie", "Jeans"];
@@ -228,13 +227,6 @@ export default function CategoryPage() {
     return () => media.removeEventListener("change", update);
   }, []);
 
-  const surface = {
-    base: themeColors.neutral.white,
-    muted: themeColors.neutral.gray100,
-    border: themeColors.neutral.overlay10,
-    text: themeColors.neutral.black,
-  };
-
   const handleApplyFilters = () => {
     setCurrentPage(1);
     setFiltersOpen(false);
@@ -249,7 +241,7 @@ export default function CategoryPage() {
   } of ${sortedProducts.length} Products`;
 
   return (
-    <main className="text-zinc-900" style={{ background: surface.base }}>
+    <main className="bg-white text-zinc-900">
       <style jsx global>{`
         .price-range::-webkit-slider-thumb {
           width: 20px;
@@ -295,7 +287,6 @@ export default function CategoryPage() {
             onToggleDressStyle={handleToggleDressStyle}
             onReset={resetFilters}
             onApply={handleApplyFilters}
-            surface={surface}
           />
 
           <div className="flex min-h-[760px] flex-col gap-8">
@@ -328,7 +319,6 @@ export default function CategoryPage() {
                 onToggleDressStyle={handleToggleDressStyle}
                 onApply={handleApplyFilters}
                 onClose={() => setFiltersOpen(false)}
-                surface={surface}
               />
             )}
 
@@ -343,7 +333,6 @@ export default function CategoryPage() {
                 totalPages={totalPages}
                 items={paginationItems}
                 onPageChange={setCurrentPage}
-                surface={surface}
               />
             </div>
           </div>

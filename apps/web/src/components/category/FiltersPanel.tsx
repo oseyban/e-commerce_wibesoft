@@ -1,5 +1,4 @@
 type ColorOption = { name: string; value: string };
-type Surface = { base: string; border: string; text: string; muted: string };
 
 type FiltersPanelProps = {
   categories: string[];
@@ -22,7 +21,6 @@ type FiltersPanelProps = {
   onReset?: () => void;
   onApply: () => void;
   onClose?: () => void;
-  surface: Surface;
   variant: "desktop" | "mobile";
 };
 
@@ -44,14 +42,10 @@ const FilterContent = ({
   onToggleSize,
   onToggleColor,
   onToggleDressStyle,
-  surface,
 }: Omit<FiltersPanelProps, "onReset" | "onApply" | "onClose" | "variant">) => {
   return (
     <>
-      <div
-        className="space-y-3 border-b pb-4 text-sm text-zinc-600"
-        style={{ borderColor: surface.border }}
-      >
+      <div className="space-y-3 border-b border-black/10 pb-4 text-sm text-zinc-600">
         {categories.map((item) => (
           <button
             key={item}
@@ -74,12 +68,9 @@ const FilterContent = ({
         </div>
         <div className="mt-4">
           <div className="relative h-6">
+            <div className="absolute left-0 right-0 top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-[#F0F0F0]" />
             <div
-              className="absolute left-0 right-0 top-1/2 h-1.5 -translate-y-1/2 rounded-full"
-              style={{ background: "#F0F0F0" }}
-            />
-            <div
-              className="absolute top-1/2 h-1.5 -translate-y-1/2 rounded-full"
+              className="absolute top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-black"
               style={{
                 left: `${((priceRange[0] - priceBounds.min) /
                   (priceBounds.max - priceBounds.min || 1)) * 100}%`,
@@ -89,7 +80,6 @@ const FilterContent = ({
                     (priceBounds.max - priceBounds.min || 1)) *
                     100
                 }%`,
-                background: surface.text,
               }}
             />
             <input
@@ -103,10 +93,9 @@ const FilterContent = ({
                   priceRange[1],
                 ])
               }
-              className="price-range absolute inset-0 h-6 w-full cursor-pointer appearance-none bg-transparent"
+              className="price-range absolute inset-0 h-6 w-full cursor-pointer appearance-none bg-transparent accent-black"
               onPointerDown={() => onActiveThumbChange("min")}
               style={{
-                accentColor: surface.text,
                 zIndex: activePriceThumb === "min" ? 4 : 3,
               }}
             />
@@ -121,10 +110,9 @@ const FilterContent = ({
                   Math.max(Number(event.target.value), priceRange[0]),
                 ])
               }
-              className="price-range absolute inset-0 h-6 w-full cursor-pointer appearance-none bg-transparent"
+              className="price-range absolute inset-0 h-6 w-full cursor-pointer appearance-none bg-transparent accent-black"
               onPointerDown={() => onActiveThumbChange("max")}
               style={{
-                accentColor: surface.text,
                 zIndex: activePriceThumb === "max" ? 4 : 3,
               }}
             />
@@ -136,7 +124,7 @@ const FilterContent = ({
         </div>
       </div>
 
-      <div className="border-t py-4" style={{ borderColor: surface.border }}>
+      <div className="border-t border-black/10 py-4">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-semibold">Colors</h3>
           <span>▾</span>
@@ -147,7 +135,7 @@ const FilterContent = ({
               key={color.name}
               type="button"
               onClick={() => onToggleColor(color.name)}
-              className={`h-9 w-9 rounded-full border ${
+              className={`h-9 w-9 rounded-full border border-black/10 ${
                 selectedColors.includes(color.name)
                   ? "ring-2 ring-black ring-offset-2"
                   : ""
@@ -158,10 +146,9 @@ const FilterContent = ({
             >
               {selectedColors.includes(color.name) && (
                 <span
-                  className="flex h-full w-full items-center justify-center text-[10px] font-semibold"
-                  style={{
-                    color: color.value === "#FFFFFF" ? "#000000" : "#FFFFFF",
-                  }}
+                  className={`flex h-full w-full items-center justify-center text-[10px] font-semibold ${
+                    color.value === "#FFFFFF" ? "text-black" : "text-white"
+                  }`}
                 >
                   ✓
                 </span>
@@ -171,7 +158,7 @@ const FilterContent = ({
         </div>
       </div>
 
-      <div className="border-t py-4" style={{ borderColor: surface.border }}>
+      <div className="border-t border-black/10 py-4">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-semibold">Size</h3>
           <span>▾</span>
@@ -182,7 +169,7 @@ const FilterContent = ({
               key={size}
               type="button"
               onClick={() => onToggleSize(size)}
-              className={`w-full rounded-full border px-3 py-2 ${
+              className={`w-full rounded-full border border-black/10 px-3 py-2 ${
                 selectedSizes.includes(size) ? "bg-black text-white" : "text-zinc-600"
               }`}
             >
@@ -192,7 +179,7 @@ const FilterContent = ({
         </div>
       </div>
 
-      <div className="border-t py-4" style={{ borderColor: surface.border }}>
+      <div className="border-t border-black/10 py-4">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-semibold">Dress Style</h3>
           <span>▾</span>
@@ -221,16 +208,12 @@ export function FilterSidebar({
   onReset,
   onApply,
   onClose,
-  surface,
   variant,
   ...props
 }: FiltersPanelProps) {
   if (variant !== "desktop") return null;
   return (
-    <aside
-      className="hidden h-fit rounded-2xl p-4 lg:block"
-      style={{ background: surface.base, border: `1px solid ${surface.border}` }}
-    >
+    <aside className="hidden h-fit rounded-2xl border border-black/10 bg-white p-4 lg:block">
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-sm font-semibold">Filters</h2>
         <button
@@ -241,10 +224,9 @@ export function FilterSidebar({
           Reset
         </button>
       </div>
-      <FilterContent {...props} surface={surface} />
+      <FilterContent {...props} />
       <button
-        className="mt-4 w-full rounded-full py-3 text-sm font-semibold"
-        style={{ background: surface.text, color: surface.base }}
+        className="mt-4 w-full rounded-full bg-black py-3 text-sm font-semibold text-white"
         type="button"
         onClick={onApply}
       >
@@ -257,29 +239,21 @@ export function FilterSidebar({
 export function FilterDrawer({
   onApply,
   onClose,
-  surface,
   variant,
   ...props
 }: FiltersPanelProps) {
   if (variant !== "mobile") return null;
   return (
-    <div
-      className="mx-auto w-full max-w-[390px] rounded-t-[20px] rounded-b-none p-4 lg:hidden"
-      style={{ background: surface.base, border: `1px solid ${surface.border}` }}
-    >
-      <div
-        className="mb-4 flex items-center justify-between border-b pb-3"
-        style={{ borderColor: surface.border }}
-      >
+    <div className="mx-auto w-full max-w-[390px] rounded-t-[20px] rounded-b-none border border-black/10 bg-white p-4 lg:hidden">
+      <div className="mb-4 flex items-center justify-between border-b border-black/10 pb-3">
         <h2 className="text-sm font-semibold">Filters</h2>
         <button className="text-zinc-400" onClick={onClose}>
           ✕
         </button>
       </div>
-      <FilterContent {...props} surface={surface} />
+      <FilterContent {...props} />
       <button
-        className="mt-4 w-full rounded-full py-3 text-sm font-semibold"
-        style={{ background: surface.text, color: surface.base }}
+        className="mt-4 w-full rounded-full bg-black py-3 text-sm font-semibold text-white"
         type="button"
         onClick={onApply}
       >

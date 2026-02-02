@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import { type Product } from "@monorepo/api";
 import { useStore } from "../../../lib/store";
-import { colors, fontSizes } from "../../../../../../packages/design-tokens/src";
 import Header from "../../../components/Header";
 import Footer from "../../../components/Footer";
 import { useProductById, useProducts } from "../../../hooks/useProducts";
@@ -117,7 +116,7 @@ export default function ProductDetailPage() {
   if (isLoading) {
     return (
       <div className="flex min-h-[50vh] items-center justify-center px-4">
-        <p style={{ color: colors.gray[500], fontSize: fontSizes.sm }}>Yükleniyor…</p>
+        <p className="text-sm text-zinc-500">Yükleniyor…</p>
       </div>
     );
   }
@@ -125,13 +124,13 @@ export default function ProductDetailPage() {
   if (isError || !data) {
     return (
       <div className="flex min-h-[50vh] items-center justify-center px-4">
-        <p style={{ color: colors.danger, fontSize: fontSizes.sm }}>Ürün yüklenemedi</p>
+        <p className="text-sm text-red-500">Ürün yüklenemedi</p>
       </div>
     );
   }
 
   return (
-    <main style={{ background: colors.white, color: colors.gray[900] }}>
+    <main className="bg-white text-zinc-900">
       <Header />
 
       <Breadcrumbs category={data.category} />

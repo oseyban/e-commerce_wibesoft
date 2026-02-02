@@ -18,29 +18,19 @@ export default function CategoryHeader({
   return (
     <div className="flex items-center justify-between gap-4">
       <div className="flex items-center gap-3">
-        <h1
-          className="text-[32px] font-bold leading-[43px] text-black"
-          style={{ fontFamily: "var(--font-satoshi), sans-serif" }}
-        >
+        <h1 className="text-[32px] font-bold leading-[43px] text-black">
           {title}
         </h1>
-        <span
-          className="text-[14px] font-normal leading-[19px] text-black/60 sm:hidden"
-          style={{ fontFamily: "var(--font-satoshi), sans-serif" }}
-        >
+        <span className="text-[14px] font-normal leading-[19px] text-black/60 sm:hidden">
           {showingText}
         </span>
       </div>
       <div className="flex items-center gap-4">
-        <span
-          className="hidden text-[14px] font-normal leading-[19px] text-black/60 sm:inline"
-          style={{ fontFamily: "var(--font-satoshi), sans-serif" }}
-        >
+        <span className="hidden text-[14px] font-normal leading-[19px] text-black/60 sm:inline">
           {showingText}
         </span>
         <label
           className="hidden items-center gap-2 text-[16px] font-normal leading-[22px] text-black/60 sm:flex"
-          style={{ fontFamily: "var(--font-satoshi), sans-serif" }}
         >
           Sort by:
           <span className="inline-flex items-center gap-0">

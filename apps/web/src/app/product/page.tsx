@@ -37,7 +37,7 @@ export default function ProductsPage() {
                 alt={product.title}
                 width={300}
                 height={160}
-                style={{ objectFit: "contain" }}
+                className="object-contain"
               />
             </div>
 

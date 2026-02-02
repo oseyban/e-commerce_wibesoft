@@ -1,6 +1,4 @@
 import Image from "next/image";
-import { colors, spacing, radii, shadows } from "../../../../../packages/design-tokens/src";
-import { themeColors } from "../../data/theme-colors";
 
 type ProductGalleryProps = {
   title: string;
@@ -17,8 +15,6 @@ export default function ProductGallery({
   selectedIndex,
   onSelectIndex,
 }: ProductGalleryProps) {
-  const borderColor = colors.gray[200];
-
   return (
     <>
       <div className="order-2 flex flex-row justify-center gap-4 lg:order-none lg:flex-col lg:gap-3 lg:justify-between lg:h-[530px]">
@@ -30,12 +26,9 @@ export default function ProductGallery({
                 key={`${src}-${index}`}
                 type="button"
                 onClick={() => onSelectIndex(index)}
-                className={`relative flex h-[106px] w-[112px] shrink-0 items-center justify-center lg:w-[152px] ${isSelected ? "lg:h-[167px]" : "lg:h-[168px]"}`}
-                style={{
-                  borderRadius: "20px",
-                  border: isSelected ? "1px solid #000000" : "0px solid transparent",
-                  background: "transparent",
-                }}
+                className={`relative flex h-[106px] w-[112px] shrink-0 items-center justify-center rounded-[20px] border bg-transparent lg:w-[152px] ${
+                  isSelected ? "border-black lg:h-[167px]" : "border-transparent lg:h-[168px]"
+                }`}
               >
                 <Image
                   src={src}
@@ -48,29 +41,13 @@ export default function ProductGallery({
             );
           })
         ) : (
-          <div
-            className="flex h-20 w-20 shrink-0 items-center justify-center lg:h-24 lg:w-full"
-            style={{
-              borderRadius: radii.xl,
-              border: `1px solid ${borderColor}`,
-              background: colors.gray[50],
-              color: colors.gray[400],
-            }}
-          >
+          <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl border border-black/10 bg-[#F0F0F0] text-zinc-400 lg:h-24 lg:w-full">
             No image
           </div>
         )}
       </div>
 
-      <div
-        className="order-1 flex min-h-[260px] items-center justify-center sm:min-h-[280px] lg:order-none lg:w-[444px] lg:h-[530px] lg:ml-4"
-        style={{
-          borderRadius: "20px",
-          background: themeColors.neutral.gray200,
-          padding: spacing[6],
-          boxShadow: shadows.sm,
-        }}
-      >
+      <div className="order-1 flex min-h-[260px] items-center justify-center rounded-[20px] bg-[#F0EEED] p-6 shadow-sm sm:min-h-[280px] lg:order-none lg:h-[530px] lg:w-[444px] lg:ml-4">
         <div className="relative h-56 w-full sm:h-64 lg:h-full">
           <Image
             src={activeImage}

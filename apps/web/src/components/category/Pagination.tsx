@@ -5,7 +5,6 @@ type PaginationProps = {
   totalPages: number;
   items: PaginationItem[];
   onPageChange: (page: number) => void;
-  surface: { base: string; border: string; text: string };
 };
 
 export default function Pagination({
@@ -13,13 +12,11 @@ export default function Pagination({
   totalPages,
   items,
   onPageChange,
-  surface,
 }: PaginationProps) {
   return (
     <div className="mt-auto flex items-center justify-between text-xs text-zinc-500">
       <button
-        className="rounded-lg border px-4 py-2"
-        style={{ borderColor: surface.border, background: surface.base }}
+        className="rounded-lg border border-black/10 bg-white px-4 py-2"
         onClick={() => onPageChange(Math.max(1, currentPage - 1))}
         disabled={currentPage === 1}
       >
@@ -42,11 +39,8 @@ export default function Pagination({
               key={page}
               type="button"
               className={`rounded-lg px-3 py-2 ${
-                isActive ? "text-white" : "border border-transparent"
+                isActive ? "bg-black text-white" : "border border-transparent"
               }`}
-              style={
-                isActive ? { background: surface.text, color: surface.base } : undefined
-              }
               onClick={() => onPageChange(page)}
             >
               {page}
@@ -55,8 +49,7 @@ export default function Pagination({
         })}
       </div>
       <button
-        className="rounded-lg border px-4 py-2"
-        style={{ borderColor: surface.border, background: surface.base }}
+        className="rounded-lg border border-black/10 bg-white px-4 py-2"
         onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
         disabled={currentPage === totalPages}
       >

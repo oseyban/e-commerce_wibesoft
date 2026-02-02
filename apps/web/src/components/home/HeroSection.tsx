@@ -1,14 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
-import { themeColors } from "../../data/theme-colors";
 import { HOME_ASSETS } from "./assets";
 
 export default function HeroSection() {
   return (
-    <section
-      className="relative w-full"
-      style={{ background: themeColors.neutral.gray300 }}
-    >
+    <section className="relative w-full bg-[#F2F0F1]">
       <Image
         src={HOME_ASSETS.star}
         alt=""
@@ -25,21 +21,16 @@ export default function HeroSection() {
         className="absolute left-[68%] top-[62%] sm:left-[82%] sm:top-[15.03%]"
         aria-hidden
       />
-      <div
-        className="mx-auto grid max-w-[1200px] grid-cols-1 items-center gap-6 px-4 sm:px-5 lg:grid-cols-[1.1fr_0.9fr] lg:gap-0"
-        style={{ minHeight: 663 }}
-      >
+      <div className="mx-auto grid min-h-[663px] max-w-[1200px] grid-cols-1 items-center gap-6 px-4 sm:px-5 lg:grid-cols-[1.1fr_0.9fr] lg:gap-0">
         <div className="pl-4 pr-4 py-8 sm:pl-6 sm:pr-6 lg:pl-[72px] lg:pr-6 lg:py-12">
           <h1
-            className="max-w-[315px] text-[36px] leading-[34px] font-extrabold text-black sm:max-w-[600px] sm:text-[48px] sm:leading-[52px] lg:text-[64px] lg:leading-[64px]"
-            style={{ fontFamily: "var(--font-integral), sans-serif" }}
+            className="max-w-[315px] text-[36px] font-extrabold leading-[34px] text-black font-[var(--font-integral)] sm:max-w-[600px] sm:text-[48px] sm:leading-[52px] lg:text-[64px] lg:leading-[64px]"
           >
             FIND CLOTHES THAT MATCHES YOUR STYLE
           </h1>
 
           <p
-            className="mt-4 max-w-[600px] text-[14px] leading-[20px] text-black/60 sm:mt-6 sm:text-[16px] sm:leading-[22px]"
-            style={{ fontFamily: "var(--font-satoshi), sans-serif" }}
+            className="mt-4 max-w-[600px] text-[14px] leading-[20px] text-black/60 font-[var(--font-satoshi)] sm:mt-6 sm:text-[16px] sm:leading-[22px]"
           >
             Browse through our diverse range of meticulously crafted garments,
             designed to bring out your individuality and cater to your sense of
@@ -48,8 +39,7 @@ export default function HeroSection() {
 
           <Link
             href="/category"
-            className="mt-6 inline-flex w-full max-w-[358px] items-center justify-center rounded-[62px] bg-black px-8 py-3 text-sm text-white mx-auto sm:mx-0 sm:mt-8 sm:w-auto sm:px-12 sm:py-4"
-            style={{ fontFamily: "var(--font-satoshi), sans-serif" }}
+            className="mt-6 inline-flex w-full max-w-[358px] items-center justify-center rounded-[62px] bg-black px-8 py-3 text-sm text-white font-[var(--font-satoshi)] mx-auto sm:mx-0 sm:mt-8 sm:w-auto sm:px-12 sm:py-4"
           >
             Shop Now
           </Link>
@@ -77,14 +67,13 @@ export default function HeroSection() {
         </div>
 
         <div className="flex items-center justify-center pr-0 lg:justify-end lg:pr-[40px]">
-          <div className="relative h-[300px] w-[300px] sm:h-[360px] sm:w-[360px] lg:w-[520px] lg:h-[560px]">
+          <div className="relative h-[300px] w-[300px] sm:h-[360px] sm:w-[360px] lg:h-[560px] lg:w-[520px]">
             <Image
               src={HOME_ASSETS.hero}
               alt="Hero"
               fill
               sizes="(min-width:1024px) 520px, (min-width:640px) 420px, 320px"
-              className="object-contain object-left-bottom"
-              style={{ objectPosition: "55% 100%" }}
+              className="object-contain object-[55%_100%]"
               priority
               unoptimized
             />
@@ -98,8 +87,7 @@ export default function HeroSection() {
           alt=""
           width={40}
           height={40}
-          className="absolute hidden lg:block"
-          style={{ left: "72%", top: "310px" }}
+          className="absolute hidden lg:block left-[72%] top-[310px]"
           aria-hidden
         />
       </div>

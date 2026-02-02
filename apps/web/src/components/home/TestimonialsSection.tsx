@@ -8,10 +8,7 @@ export default function TestimonialsSection() {
   return (
     <section className="mx-auto max-w-[1200px] px-4 pb-12 sm:px-5">
       <div className="mb-4 flex items-center justify-between sm:mb-6">
-        <h2
-          className="text-[28px] font-bold leading-[34px] text-black underline decoration-2 sm:no-underline sm:text-[48px] sm:leading-[58px]"
-          style={{ fontFamily: "var(--font-integral), sans-serif" }}
-        >
+        <h2 className="text-[28px] font-bold leading-[34px] text-black font-[var(--font-integral)] underline decoration-2 sm:no-underline sm:text-[48px] sm:leading-[58px]">
           OUR HAPPY CUSTOMERS
         </h2>
         <div className="flex gap-2">
