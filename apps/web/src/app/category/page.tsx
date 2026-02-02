@@ -276,6 +276,11 @@ export default function CategoryPage() {
     return 0;
   };
 
+  const handleApplyFilters = () => {
+    setCurrentPage(1);
+    setFiltersOpen(false);
+  };
+
   const handlePricePointerDown = (
     event: PointerEvent<HTMLDivElement>
   ) => {
@@ -291,13 +296,26 @@ export default function CategoryPage() {
     setActivePriceThumb(value <= midpoint ? "min" : "max");
   };
 
-  const handleApplyFilters = () => {
-    setCurrentPage(1);
-    setFiltersOpen(false);
-  };
-
   return (
     <main className="text-zinc-900" style={{ background: surface.base }}>
+      <style jsx global>{`
+        .price-range::-webkit-slider-thumb {
+          width: 20px;
+          height: 20px;
+          border-radius: 9999px;
+          background: #000000;
+          cursor: pointer;
+          border: none;
+        }
+        .price-range::-moz-range-thumb {
+          width: 20px;
+          height: 20px;
+          border-radius: 9999px;
+          background: #000000;
+          cursor: pointer;
+          border: none;
+        }
+      `}</style>
       <Header />
 
       <div className="mx-auto max-w-[1200px] px-4 py-10 sm:px-5">
@@ -370,7 +388,7 @@ export default function CategoryPage() {
                         priceRange[1]
                       ])
                     }
-                    className="absolute inset-0 h-6 w-full cursor-pointer appearance-none bg-transparent"
+                    className="price-range absolute inset-0 h-6 w-full cursor-pointer appearance-none bg-transparent"
                     onPointerDown={() => setActivePriceThumb("min")}
                     style={{
                       accentColor: surface.text,
@@ -388,7 +406,7 @@ export default function CategoryPage() {
                         Math.max(Number(event.target.value), priceRange[0])
                       ])
                     }
-                    className="absolute inset-0 h-6 w-full cursor-pointer appearance-none bg-transparent"
+                    className="price-range absolute inset-0 h-6 w-full cursor-pointer appearance-none bg-transparent"
                     onPointerDown={() => setActivePriceThumb("max")}
                     style={{
                       accentColor: surface.text,
@@ -511,7 +529,7 @@ export default function CategoryPage() {
                   Casual
                 </h1>
                 <span
-                  className="text-[14px] font-normal leading-[19px] text-black/60"
+                  className="text-[14px] font-normal leading-[19px] text-black/60 sm:hidden"
                   style={{ fontFamily: "var(--font-satoshi), sans-serif" }}
                 >
                   Showing{" "}
@@ -525,6 +543,19 @@ export default function CategoryPage() {
                 </span>
               </div>
               <div className="flex items-center gap-4">
+                <span
+                  className="hidden text-[14px] font-normal leading-[19px] text-black/60 sm:inline"
+                  style={{ fontFamily: "var(--font-satoshi), sans-serif" }}
+                >
+                  Showing{" "}
+                  {sortedProducts.length
+                    ? `${(currentPage - 1) * pageSize + 1}-${Math.min(
+                        currentPage * pageSize,
+                        sortedProducts.length
+                      )}`
+                    : "0"}{" "}
+                  of {sortedProducts.length} Products
+                </span>
                 <label
                   className="hidden items-center gap-2 text-[16px] font-normal leading-[22px] text-black/60 sm:flex"
                   style={{ fontFamily: "var(--font-satoshi), sans-serif" }}
@@ -534,14 +565,14 @@ export default function CategoryPage() {
                     <select
                       value={sortBy}
                       onChange={(event) => setSortBy(event.target.value)}
-                      className="appearance-none bg-transparent font-medium text-black"
+                      className="appearance-none bg-transparent font-medium text-black outline-none"
                     >
                       <option value="popular">Most Popular</option>
                       <option value="new">Newest</option>
-                      <option value="price-asc">Price: Low to High</option>
-                      <option value="price-desc">Price: High to Low</option>
+                      <option value="price-asc">Low to High</option>
+                      <option value="price-desc">High to Low</option>
                     </select>
-                    <span className="inline-flex h-4 w-4 -ml-2 shrink-0 items-center justify-center text-black" aria-hidden>
+                    <span className="inline-flex h-4 w-4 -ml-0 items-center justify-center text-black outline-none" aria-hidden>
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                         <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                       </svg>
@@ -626,7 +657,7 @@ export default function CategoryPage() {
                             priceRange[1]
                           ])
                         }
-                        className="absolute inset-0 h-6 w-full cursor-pointer appearance-none bg-transparent"
+                        className="price-range absolute inset-0 h-6 w-full cursor-pointer appearance-none bg-transparent"
                         onPointerDown={() => setActivePriceThumb("min")}
                         style={{
                           accentColor: surface.text,
@@ -644,7 +675,7 @@ export default function CategoryPage() {
                             Math.max(Number(event.target.value), priceRange[0])
                           ])
                         }
-                        className="absolute inset-0 h-6 w-full cursor-pointer appearance-none bg-transparent"
+                        className="price-range absolute inset-0 h-6 w-full cursor-pointer appearance-none bg-transparent"
                         onPointerDown={() => setActivePriceThumb("max")}
                         style={{
                           accentColor: surface.text,
