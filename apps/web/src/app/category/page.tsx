@@ -115,6 +115,7 @@ export default function CategoryPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [sortBy, setSortBy] = useState("popular");
   const [activePriceThumb, setActivePriceThumb] = useState<"min" | "max">("min");
+  const [pageSize, setPageSize] = useState(16);
   const { data = [], isLoading, isError } = useQuery<Product[]>({
     queryKey: ["products", "category"],
     queryFn: normalizeProducts
@@ -196,12 +197,18 @@ export default function CategoryPage() {
     return list;
   }, [filteredProducts, sortBy]);
 
-  const pageSize = 12;
   const totalPages = Math.max(1, Math.ceil(sortedProducts.length / pageSize));
   const products = useMemo(() => {
     const start = (currentPage - 1) * pageSize;
     return sortedProducts.slice(start, start + pageSize);
-  }, [sortedProducts, currentPage]);
+  }, [sortedProducts, currentPage, pageSize]);
+
+  const paginationItems = useMemo(() => {
+    if (totalPages <= 5) {
+      return Array.from({ length: totalPages }, (_, index) => index + 1);
+    }
+    return [1, 2, "...", totalPages - 1, totalPages];
+  }, [totalPages]);
 
   const toggleSelection = (
     value: string,
@@ -231,7 +238,24 @@ export default function CategoryPage() {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedCategories, selectedSizes, selectedColors, selectedDressStyles, priceRange]);
+  }, [
+    selectedCategories,
+    selectedSizes,
+    selectedColors,
+    selectedDressStyles,
+    priceRange,
+    pageSize
+  ]);
+
+  useEffect(() => {
+    const media = window.matchMedia("(max-width: 640px)");
+    const update = () => {
+      setPageSize(media.matches ? 8 : 16);
+    };
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
 
   const surface = {
     base: themeColors.neutral.white,
@@ -265,6 +289,11 @@ export default function CategoryPage() {
     const value = priceBounds.min + percent * range;
     const midpoint = (priceRange[0] + priceRange[1]) / 2;
     setActivePriceThumb(value <= midpoint ? "min" : "max");
+  };
+
+  const handleApplyFilters = () => {
+    setCurrentPage(1);
+    setFiltersOpen(false);
   };
 
   return (
@@ -378,7 +407,7 @@ export default function CategoryPage() {
                 <h3 className="text-sm font-semibold">Colors</h3>
                 <span>▾</span>
               </div>
-              <div className="mt-3 grid grid-cols-5 gap-2">
+              <div className="mt-3 flex flex-wrap gap-3 sm:grid sm:grid-cols-5 sm:gap-2">
                 {colors.map((color) => (
                   <button
                     key={color.name}
@@ -386,7 +415,7 @@ export default function CategoryPage() {
                     onClick={() =>
                       toggleSelection(color.name, selectedColors, setSelectedColors)
                     }
-                    className={`h-7 w-7 rounded-full border ${
+                    className={`h-9 w-9 rounded-full border ${
                       selectedColors.includes(color.name)
                         ? "ring-2 ring-black ring-offset-2"
                         : ""
@@ -466,21 +495,25 @@ export default function CategoryPage() {
               className="mt-4 w-full rounded-full py-3 text-sm font-semibold"
               style={{ background: surface.text, color: surface.base }}
               type="button"
+              onClick={handleApplyFilters}
             >
               Apply Filter
             </button>
           </aside>
 
           <div className="flex min-h-[760px] flex-col gap-8">
-            <div className="flex flex-wrap items-end justify-between gap-4">
-              <h1
-                className="text-[32px] font-bold leading-[43px] text-black"
-                style={{ fontFamily: "var(--font-satoshi), sans-serif" }}
-              >
-                Casual
-              </h1>
-              <div className="flex flex-wrap items-center gap-4 text-xs text-zinc-500">
-                <span>
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <h1
+                  className="text-[32px] font-bold leading-[43px] text-black"
+                  style={{ fontFamily: "var(--font-satoshi), sans-serif" }}
+                >
+                  Casual
+                </h1>
+                <span
+                  className="text-[14px] font-normal leading-[19px] text-black/60"
+                  style={{ fontFamily: "var(--font-satoshi), sans-serif" }}
+                >
                   Showing{" "}
                   {sortedProducts.length
                     ? `${(currentPage - 1) * pageSize + 1}-${Math.min(
@@ -490,8 +523,10 @@ export default function CategoryPage() {
                     : "0"}{" "}
                   of {sortedProducts.length} Products
                 </span>
+              </div>
+              <div className="flex items-center gap-4">
                 <label
-                  className="flex items-center gap-2 text-[16px] font-normal leading-[22px] text-black/60"
+                  className="hidden items-center gap-2 text-[16px] font-normal leading-[22px] text-black/60 sm:flex"
                   style={{ fontFamily: "var(--font-satoshi), sans-serif" }}
                 >
                   Sort by:
@@ -506,29 +541,31 @@ export default function CategoryPage() {
                       <option value="price-asc">Price: Low to High</option>
                       <option value="price-desc">Price: High to Low</option>
                     </select>
-                    <span className="inline-flex h-4 w-4 -ml-8 shrink-0 items-center justify-center text-black" aria-hidden>
+                    <span className="inline-flex h-4 w-4 -ml-2 shrink-0 items-center justify-center text-black" aria-hidden>
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                         <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                       </svg>
                     </span>
-                    
                   </span>
                 </label>
                 <button
-                  className="rounded-full border px-4 py-2 md:hidden"
-                  style={{ borderColor: surface.border, background: surface.base }}
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-zinc-100 sm:hidden"
                   onClick={() => setFiltersOpen((v) => !v)}
+                  aria-label="Open filters"
                 >
-                  Filters
+                  <Image src="/images/filtrele.png" alt="" width={16} height={16} />
                 </button>
               </div>
             </div>
             {filtersOpen && (
               <div
-                className="rounded-2xl p-4 lg:hidden"
+                className="mx-auto w-full max-w-[390px] rounded-t-[20px] rounded-b-none p-4 lg:hidden"
                 style={{ background: surface.base, border: `1px solid ${surface.border}` }}
               >
-                <div className="mb-4 flex items-center justify-between">
+                <div
+                  className="mb-4 flex items-center justify-between border-b pb-3"
+                  style={{ borderColor: surface.border }}
+                >
                   <h2 className="text-sm font-semibold">Filters</h2>
                   <button
                     className="text-zinc-400"
@@ -626,7 +663,7 @@ export default function CategoryPage() {
                     <h3 className="text-sm font-semibold">Colors</h3>
                     <span>▾</span>
                   </div>
-                  <div className="mt-3 grid grid-cols-5 gap-2">
+                  <div className="mt-3 flex flex-wrap gap-3 sm:grid sm:grid-cols-5 sm:gap-2">
                     {colors.map((color) => (
                       <button
                         key={color.name}
@@ -638,7 +675,7 @@ export default function CategoryPage() {
                             setSelectedColors
                           )
                         }
-                        className={`h-7 w-7 rounded-full border ${
+                        className={`h-9 w-9 rounded-full border ${
                           selectedColors.includes(color.name)
                             ? "ring-2 ring-black ring-offset-2"
                             : ""
@@ -719,138 +756,147 @@ export default function CategoryPage() {
                   className="mt-4 w-full rounded-full py-3 text-sm font-semibold"
                   style={{ background: surface.text, color: surface.base }}
                   type="button"
-                  onClick={() => setFiltersOpen(false)}
+                  onClick={handleApplyFilters}
                 >
                   Apply Filter
                 </button>
               </div>
             )}
 
-            {isLoading ? (
-              <div className="py-20 text-center text-zinc-500">Loading...</div>
-            ) : isError ? (
-              <div className="py-20 text-center text-red-500">
-                Products could not be loaded.
-              </div>
-            ) : (
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {products.map((product, index) => (
-                  <article
-                    key={product.id ?? `${product.title}-${index}`}
-                    className="overflow-hidden rounded-2xl border border-zinc-200 bg-white"
-                  >
-                    <Link
-                      href={product.id ? `/product/${product.id}` : "#"}
-                      className={product.id ? "block" : "pointer-events-none block"}
+            <div className={filtersOpen ? "hidden lg:block" : "block"}>
+              {isLoading ? (
+                <div className="py-20 text-center text-zinc-500">Loading...</div>
+              ) : isError ? (
+                <div className="py-20 text-center text-red-500">
+                  Products could not be loaded.
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {products.map((product, index) => (
+                    <article
+                      key={product.id ?? `${product.title}-${index}`}
+                      className="overflow-hidden rounded-2xl border border-zinc-200 bg-white"
                     >
-                      <div className="relative h-40 w-full" style={{ background: "#F0EEED" }}>
-                        <Image
-                          src={product.image ?? ""}
-                          alt={product.title}
-                          fill
-                          unoptimized
-                          className="object-contain"
-                        />
-                      </div>
-                      <div className="p-4">
-                        <h3
-                          className="line-clamp-2 text-[20px] font-bold leading-[20px] text-black"
-                          style={{ fontFamily: "var(--font-satoshi), sans-serif" }}
-                        >
-                          {product.title}
-                        </h3>
-                        <div className="mt-2">
-                          <RatingRow />
+                      <Link
+                        href={product.id ? `/product/${product.id}` : "#"}
+                        className={product.id ? "block" : "pointer-events-none block"}
+                      >
+                        <div className="relative h-40 w-full" style={{ background: "#F0EEED" }}>
+                          <Image
+                            src={product.image ?? ""}
+                            alt={product.title}
+                            fill
+                            unoptimized
+                            className="object-contain"
+                          />
                         </div>
-                        <div className="mt-2 flex flex-wrap items-center gap-3">
-                          {(() => {
-                            const seed =
-                              typeof product.id === "number"
-                                ? product.id
-                                : product.title.length + index;
-                            const discount = getDiscount(seed);
-                            const originalPrice = discount
-                              ? product.price / (1 - discount / 100)
-                              : product.price;
-                            return (
-                              <>
-                                <span
-                                  className="text-[24px] font-bold leading-8 text-black"
-                                  style={{ fontFamily: "var(--font-satoshi), sans-serif" }}
-                                >
-                                  {formatPrice(product.price)}
-                                </span>
-                                {discount > 0 && (
-                                  <>
-                                    <span className="text-[16px] text-zinc-400 line-through">
-                                      {formatPrice(originalPrice)}
-                                    </span>
-                                    <span
-                                      className="rounded-full px-2 py-0.5 text-[11px] font-semibold"
-                                      style={{
-                                        background: themeColors.accent.dangerSoft,
-                                        color: themeColors.accent.danger
-                                      }}
-                                    >
-                                      -{discount}%
-                                    </span>
-                                  </>
-                                )}
-                              </>
-                            );
-                          })()}
+                        <div className="p-4">
+                          <h3
+                            className="truncate text-[16px] font-bold leading-[22px] text-black sm:line-clamp-2 sm:whitespace-normal sm:text-[20px] sm:leading-[20px]"
+                            style={{ fontFamily: "var(--font-satoshi), sans-serif" }}
+                          >
+                            {product.title}
+                          </h3>
+                          <div className="mt-2">
+                            <RatingRow />
+                          </div>
+                          <div className="mt-2 flex flex-wrap items-center gap-3">
+                            {(() => {
+                              const seed =
+                                typeof product.id === "number"
+                                  ? product.id
+                                  : product.title.length + index;
+                              const discount = getDiscount(seed);
+                              const originalPrice = discount
+                                ? product.price / (1 - discount / 100)
+                                : product.price;
+                              return (
+                                <>
+                                  <span
+                                    className="text-[24px] font-bold leading-8 text-black"
+                                    style={{ fontFamily: "var(--font-satoshi), sans-serif" }}
+                                  >
+                                    {formatPrice(product.price)}
+                                  </span>
+                                  {discount > 0 && (
+                                    <>
+                                      <span className="text-[16px] text-zinc-400 line-through">
+                                        {formatPrice(originalPrice)}
+                                      </span>
+                                      <span
+                                        className="rounded-full px-2 py-0.5 text-[11px] font-semibold"
+                                        style={{
+                                          background: themeColors.accent.dangerSoft,
+                                          color: themeColors.accent.danger
+                                        }}
+                                      >
+                                        -{discount}%
+                                      </span>
+                                    </>
+                                  )}
+                                </>
+                              );
+                            })()}
+                          </div>
                         </div>
-                      </div>
-                    </Link>
-                  </article>
-                ))}
-              </div>
-            )}
+                      </Link>
+                    </article>
+                  ))}
+                </div>
+              )}
 
-            <div className="mt-auto flex items-center justify-between text-xs text-zinc-500">
-              <button
-                className="rounded-lg border px-4 py-2"
-                style={{ borderColor: surface.border, background: surface.base }}
-                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-                disabled={currentPage === 1}
-              >
-                <span className="mr-2">‹</span>
-                Previous
-              </button>
-              <div className="flex items-center gap-2">
-                {Array.from({ length: totalPages }, (_, index) => {
-                  const page = index + 1;
-                  const isActive = page === currentPage;
-                  return (
-                    <button
-                      key={page}
-                      type="button"
-                      className={`rounded-lg px-3 py-2 ${
-                        isActive ? "text-white" : "border border-transparent"
-                      }`}
-                      style={
-                        isActive
-                          ? { background: surface.text, color: surface.base }
-                          : undefined
-                      }
-                      onClick={() => setCurrentPage(page)}
-                    >
-                      {page}
-                    </button>
-                  );
-                })}
+              <div className="mt-auto flex items-center justify-between text-xs text-zinc-500">
+                <button
+                  className="rounded-lg border px-4 py-2"
+                  style={{ borderColor: surface.border, background: surface.base }}
+                  onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                  disabled={currentPage === 1}
+                >
+                  <span className="mr-2">‹</span>
+                  Previous
+                </button>
+                <div className="flex items-center gap-2">
+                  {paginationItems.map((item, index) => {
+                    if (item === "...") {
+                      return (
+                        <span key={`ellipsis-${index}`} className="px-2 py-2">
+                          ...
+                        </span>
+                      );
+                    }
+                    const page = item as number;
+                    const isActive = page === currentPage;
+                    return (
+                      <button
+                        key={page}
+                        type="button"
+                        className={`rounded-lg px-3 py-2 ${
+                          isActive ? "text-white" : "border border-transparent"
+                        }`}
+                        style={
+                          isActive
+                            ? { background: surface.text, color: surface.base }
+                            : undefined
+                        }
+                        onClick={() => setCurrentPage(page)}
+                      >
+                        {page}
+                      </button>
+                    );
+                  })}
+                </div>
+                <button
+                  className="rounded-lg border px-4 py-2"
+                  style={{ borderColor: surface.border, background: surface.base }}
+                  onClick={() =>
+                    setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+                  }
+                  disabled={currentPage === totalPages}
+                >
+                  Next
+                  <span className="ml-2">›</span>
+                </button>
               </div>
-              <button
-                className="rounded-lg border px-4 py-2"
-                style={{ borderColor: surface.border, background: surface.base }}
-                onClick={() =>
-                  setCurrentPage((prev) => Math.min(totalPages, prev + 1))
-                }
-                disabled={currentPage === totalPages}
-              >
-                Next
-                <span className="ml-2">›</span>
-              </button>
             </div>
           </div>
         </div>
