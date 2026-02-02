@@ -22,18 +22,6 @@ type StoreState = {
   total: () => number;
 };
 
-const demoItems: CartItem[] = [
-  {
-    id: 1,
-    title: "Gradient Graphic T-shirt",
-    price: 145,
-    qty: 1,
-    image: null
-  },
-  { id: 2, title: "Checkered Shirt", price: 180, qty: 1, image: null },
-  { id: 3, title: "Skinny Fit Jeans", price: 240, qty: 1, image: null }
-];
-
 export default function CartPage() {
   const [mounted, setMounted] = useState(false);
   const { items, setQty, remove, total } = useStore((state: StoreState) => ({
@@ -47,7 +35,7 @@ export default function CartPage() {
     setMounted(true);
   }, []);
 
-  const displayItems: CartItem[] = mounted && items.length ? items : demoItems;
+  const displayItems: CartItem[] = mounted ? items : [];
   const subtotal = useMemo(
     () => displayItems.reduce((sum, it) => sum + it.price * it.qty, 0),
     [displayItems]
@@ -76,7 +64,13 @@ export default function CartPage() {
           Your Cart
         </h1>
 
-        {mounted ? (
+        {!mounted ? (
+          <div className="py-20 text-center text-zinc-500">Loading cart...</div>
+        ) : displayItems.length === 0 ? (
+          <div className="rounded-[20px] border border-black/10 bg-white p-10 text-center text-black/60">
+            Your cart is empty.
+          </div>
+        ) : (
           <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
             <CartList items={displayItems} onRemove={remove} onQtyChange={setQty} format={format} />
             <OrderSummary
@@ -87,8 +81,6 @@ export default function CartPage() {
               format={format}
             />
           </div>
-        ) : (
-          <div className="py-20 text-center text-zinc-500">Loading cart...</div>
         )}
       </div>
       <Footer />
