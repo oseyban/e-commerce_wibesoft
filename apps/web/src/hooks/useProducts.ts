@@ -1,10 +1,16 @@
 // apps/web/src/hooks/useProducts.ts
 import { useQuery } from "@tanstack/react-query";
-import { sdk } from "@monorepo/api";
-import { api } from "../lib/api";
+import { getProductById, getProducts, type Product } from "@monorepo/api";
 
 export const useProducts = () =>
-  useQuery({
+  useQuery<Product[]>({
     queryKey: ["products"],
-    queryFn: () => sdk.getProducts({ client: api }),
+    queryFn: getProducts,
+  });
+
+export const useProductById = (productId?: number) =>
+  useQuery<Product>({
+    queryKey: ["product", productId],
+    queryFn: () => getProductById(productId as number),
+    enabled: Number.isFinite(productId),
   });

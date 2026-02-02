@@ -3,12 +3,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { getProducts, type Product } from "@monorepo/api";
+import { type Product } from "@monorepo/api";
 import testimonials from "../data/testimonials.json";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { themeColors } from "../data/theme-colors";
+import { useProducts } from "../hooks/useProducts";
 
 const ASSETS = {
   logo: "/images/logo.png",
@@ -58,15 +58,7 @@ function RatingRow() {
 }
 
 export default function HomePage() {
-  const { data, isLoading, isError } = useQuery<Product[]>({
-    queryKey: ["products"],
-    queryFn: async (): Promise<Product[]> => {
-      const res = await getProducts();
-      if (Array.isArray(res)) return res;
-      if (res && typeof res === "object" && "data" in res) return (res as { data?: Product[] }).data ?? [];
-      return [];
-    },
-  });
+  const { data, isLoading, isError } = useProducts();
 
   const { newArrivals, topSelling } = useMemo(() => {
     const list = Array.isArray(data) ? data : [];

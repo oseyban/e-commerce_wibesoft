@@ -3,11 +3,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState, type PointerEvent } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { getProducts, type Product } from "@monorepo/api";
+import { type Product } from "@monorepo/api";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import { themeColors } from "../../data/theme-colors";
+import { useProducts } from "../../hooks/useProducts";
 
 const categories = ["T-shirts", "Shorts", "Shirts", "Hoodie", "Jeans"];
 const sizes = [
@@ -68,15 +68,6 @@ const getProductMeta = (product: Product) => {
   return { sizes: sizePool, colors: colorPool };
 };
 
-const normalizeProducts = async (): Promise<Product[]> => {
-  const res = await getProducts();
-  if (Array.isArray(res)) return res;
-  if (res && typeof res === "object" && "data" in res) {
-    return (res as { data?: Product[] }).data ?? [];
-  }
-  return [];
-};
-
 function Star({ small = false }: { small?: boolean }) {
   const size = small ? 9 : 18;
   const height = small ? 17 : 18;
@@ -116,10 +107,7 @@ export default function CategoryPage() {
   const [sortBy, setSortBy] = useState("popular");
   const [activePriceThumb, setActivePriceThumb] = useState<"min" | "max">("min");
   const [pageSize, setPageSize] = useState(16);
-  const { data = [], isLoading, isError } = useQuery<Product[]>({
-    queryKey: ["products", "category"],
-    queryFn: normalizeProducts
-  });
+  const { data = [], isLoading, isError } = useProducts();
 
   const priceBounds = useMemo(() => {
     const prices = data.map((item) => item.price ?? 0).filter((v) => v > 0);

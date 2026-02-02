@@ -2,15 +2,11 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useQuery } from "@tanstack/react-query";
-import { getProducts } from "@monorepo/api";
 import type { Product } from "@monorepo/api";
+import { useProducts } from "../../hooks/useProducts";
 
 export default function ProductsPage() {
-  const { data = [], isLoading, isError, error } = useQuery<Product[]>({
-    queryKey: ["products"],
-    queryFn: getProducts,
-  });
+  const { data = [], isLoading, isError, error } = useProducts();
 
   if (isLoading) {
     return <p className="p-8 text-center text-neutral-500">Yükleniyor...</p>;

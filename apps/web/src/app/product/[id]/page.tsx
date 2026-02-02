@@ -4,14 +4,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
-import { getProductById, getProducts, type Product } from "@monorepo/api";
+import { type Product } from "@monorepo/api";
 import { useStore } from "../../../lib/store";
 import { colors, spacing, radii, fontSizes, fontWeights, shadows } from "../../../../../../packages/design-tokens/src";
 import Header from "../../../components/Header";
 import Footer from "../../../components/Footer";
 import reviews from "../../../data/reviews.json";
 import { themeColors } from "../../../data/theme-colors";
+import { useProductById, useProducts } from "../../../hooks/useProducts";
 
 type Review = {
   id: string;
@@ -59,16 +59,8 @@ export default function ProductDetailPage() {
   const params = useParams<{ id: string }>();
   const productId = useMemo(() => Number(params?.id), [params?.id]);
 
-  const { data, isLoading, isError } = useQuery<Product>({
-    queryKey: ["product", productId],
-    queryFn: () => getProductById(productId),
-    enabled: Number.isFinite(productId)
-  });
-
-  const { data: allProducts = [] } = useQuery<Product[]>({
-    queryKey: ["products"],
-    queryFn: getProducts,
-  });
+  const { data, isLoading, isError } = useProductById(productId);
+  const { data: allProducts = [] } = useProducts();
 
   const [qty, setQty] = useState(1);
   const [selectedColor, setSelectedColor] = useState(colorOptions[0]);
