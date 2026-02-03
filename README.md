@@ -165,9 +165,33 @@ NEXT_PUBLIC_API_URL=https://fakestoreapi.com
   1. `pnpm install --frozen-lockfile`
   2. `pnpm lint`
   3. `pnpm build`
-  4. Unit tests: `pnpm test` (varsa)
+  4. Unit tests: `pnpm test:e2e` 
 
 * Codegen adımlarını CI’ye ekleyin (spec değiştiyse üretim adımı çalışsın). `openapitools.json` ve codegen script’lerini CI’de tetikleyin.
+
+---
+
+Testler (E2E)
+
+Projede temel kullanıcı akışlarını doğrulamak için Playwright ile E2E testler bulunmaktadır.
+
+Testleri Çalıştırma
+pnpm test:e2e
+
+
+Bu komut testler başlamadan önce apps/web uygulamasını otomatik olarak ayağa kaldırır ve tarayıcı üzerinden senaryoları çalıştırır.
+
+Kapsanan Senaryolar
+
+API'nin çalıştığını doğrulayan basit bir /products isteği
+
+Ana sayfadan bir ürüne gitme
+
+Ürünü sepete ekleme
+
+Sepet sayfasında ürünün göründüğünü doğrulama
+
+Bu testler; routing, API bağlantısı, state yönetimi (cart) ve temel UI akışlarının birlikte doğru çalıştığını garanti eder.
 
 ---
 
@@ -184,4 +208,5 @@ Aşağıdaki maddeler dökümantasyondaki görev kriterlerine göre düzenlendi.
  [*] TanStack Query (v5) kullanımı (QueryClientProvider root’ta)
  [*] Tailwind CSS ile UI
  [*] Figma uyumuna dikkat (layout, spacing, typography)
+ [*] Test Sonucu Kontrol Etme
 
